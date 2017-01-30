@@ -46,19 +46,19 @@ model.add(Flatten())
 # layer 5, fc
 model.add(Dense(1164))
 model.add(Activation('relu'))
-model.add(Dropout(0.5))
+#model.add(Dropout(0.5))
 # layer 6, fc
 model.add(Dense(100))
 model.add(Activation('relu'))
-model.add(Dropout(0.5))
+#model.add(Dropout(0.5))
 # layer 7, fc
 model.add(Dense(50))
 model.add(Activation('relu'))
-model.add(Dropout(0.5))
+#model.add(Dropout(0.5))
 # layer 8, fc
 model.add(Dense(10))
 model.add(Activation('relu'))
-model.add(Dropout(0.5))
+#model.add(Dropout(0.5))
 # layer output
 model.add(Dense(1))
 
@@ -72,7 +72,7 @@ opt = Adam(lr=0.001)
 model.compile(optimizer=opt, loss='mse', metrics=['accuracy'])
 model.summary()
 
-history = model.fit(X_train, y_train, nb_epoch=10, validation_split=0.2)
+history = model.fit(X_train, y_train, nb_epoch=10, batch_size=64, validation_split=0.2)
 # list all data in history
 print(history.history.keys())
 # summarize history for accuracy
