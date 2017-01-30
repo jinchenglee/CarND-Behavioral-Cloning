@@ -67,11 +67,12 @@ model.add(Dense(1))
 # Compile and train the model
 # -------------------------------------
 #model.load_weights('nvidia_net_weights.h5')
-opt = SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
+#opt = SGD(lr=0.002, decay=1e-6, momentum=0.9, nesterov=True)
+opt = Adam(lr=0.002)
 model.compile(optimizer=opt, loss='mse', metrics=['accuracy'])
 model.summary()
 
-history = model.fit(X_train, y_train, nb_epoch=300, validation_split=0.0)
+history = model.fit(X_train, y_train, nb_epoch=100, validation_split=0.0)
 # list all data in history
 print(history.history.keys())
 # summarize history for accuracy
