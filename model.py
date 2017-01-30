@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 # -------------------------------------
 # Data preparation
 # -------------------------------------
-data_file = "./preprocessed.pickle"
+data_file = "./data.pickle"
 with open(data_file, mode='rb') as f:
     data = pickle.load(f)
 
@@ -46,19 +46,19 @@ model.add(Flatten())
 # layer 5, fc
 model.add(Dense(1164))
 model.add(Activation('relu'))
-#model.add(Dropout(0.5))
+model.add(Dropout(0.5))
 # layer 6, fc
 model.add(Dense(100))
 model.add(Activation('relu'))
-#model.add(Dropout(0.5))
+model.add(Dropout(0.5))
 # layer 7, fc
 model.add(Dense(50))
 model.add(Activation('relu'))
-#model.add(Dropout(0.5))
+model.add(Dropout(0.5))
 # layer 8, fc
 model.add(Dense(10))
 model.add(Activation('relu'))
-#model.add(Dropout(0.5))
+model.add(Dropout(0.5))
 # layer output
 model.add(Dense(1))
 
@@ -66,13 +66,13 @@ model.add(Dense(1))
 # -------------------------------------
 # Compile and train the model
 # -------------------------------------
-#model.load_weights('nvidia_net_weights.h5')
+#model.load_weights('model.h5')
 #opt = SGD(lr=0.002, decay=1e-6, momentum=0.9, nesterov=True)
 opt = Adam(lr=0.001)
 model.compile(optimizer=opt, loss='mse', metrics=['accuracy'])
 model.summary()
 
-history = model.fit(X_train, y_train, nb_epoch=100, validation_split=0.1)
+history = model.fit(X_train, y_train, nb_epoch=10, validation_split=0.2)
 # list all data in history
 print(history.history.keys())
 # summarize history for accuracy
@@ -95,9 +95,14 @@ plt.show()
 # -------------------------------------
 # Saving the results
 # -------------------------------------
-model.save_weights('nvidia_net_weights.h5')
+model.save_weights('model.h5')
+
+model_json = model.to_json()
+with open("model.json", "w") as json_file:
+    json_file.write(model_json)
 
 # -------------------------------------
 # Evaluate the trained model 
 # -------------------------------------
-print(model.evaluate(X_train, y_train, verbose=1))
+for i in range(200):
+    print(float(model.predict(X_train[i].reshape([1,66,200,3]), batch_size=1)))

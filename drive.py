@@ -2,6 +2,8 @@ import argparse
 import base64
 import json
 
+import cv2
+
 import numpy as np
 import socketio
 import eventlet
@@ -19,11 +21,40 @@ from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_a
 import tensorflow as tf
 tf.python.control_flow_ops = tf
 
+def normalize_grayscale(image_data):
+    """
+    Normalize the image data with Min-Max scaling to a range of [0.1, 0.9]
+    :param image_data: The image data to be normalized
+    :return: Normalized image data
+    """
+    img_max = np.max(image_data)
+    img_min = np.min(image_data)
+    a = -0.5
+    b = 0.5
+
+    img_normed = a + (b-a)*(image_data - img_min)/(img_max - img_min)
+    #print(np.max(img_normed))
+    #print(np.min(img_normed))
+    return img_normed
+
+def normalize_color(image_data):
+    """
+    Normalize the image data on per channel basis. 
+    """
+    img_normed_color = np.zeros_like(image_data, dtype=float)
+    for ch in range(image_data.shape[3]):
+        tmp = normalize_grayscale(image_data[:,:,:,ch])
+        img_normed_color[:,:,:,ch] = tmp
+    #print(np.max(img_normed_color))
+    #print(np.min(img_normed_color))
+    return img_normed_color
+
 
 sio = socketio.Server()
 app = Flask(__name__)
 model = None
 prev_image_array = None
+
 
 @sio.on('telemetry')
 def telemetry(sid, data):
@@ -37,7 +68,14 @@ def telemetry(sid, data):
     imgString = data["image"]
     image = Image.open(BytesIO(base64.b64decode(imgString)))
     image_array = np.asarray(image)
-    transformed_image_array = image_array[None, :, :, :]
+    #<<JC>> transformed_image_array = image_array[None, :, :, :]
+    #<<JC>> added following https://carnd-forums.udacity.com/questions/36054036/car-will-not-move
+    img_crop = image_array[56:160,:,:]
+    img_resize = cv2.resize(img_crop, (200,66))
+    img_normed = normalize_color(img_resize[None,:,:,:])
+
+    transformed_image_array = img_normed
+    #transformed_image_array = image[None,:,:,:]
     # This model currently assumes that the features of the model are just the images. Feel free to change this.
     steering_angle = float(model.predict(transformed_image_array, batch_size=1))
     # The driving model currently just outputs a constant throttle. Feel free to edit this.
@@ -68,7 +106,7 @@ if __name__ == '__main__':
         # NOTE: if you saved the file by calling json.dump(model.to_json(), ...)
         # then you will have to call:
         #
-        #   model = model_from_json(json.loads(jfile.read()))\
+        #  model = model_from_json(json.loads(jfile.read()))\
         #
         # instead.
         model = model_from_json(jfile.read())

@@ -4,7 +4,7 @@ import cv2
 import pickle
 import os
 
-DATA_DIR = './bootstrap'
+DATA_DIR = './data'
 
 def normalize_grayscale(image_data):
     """
@@ -43,11 +43,12 @@ y_train = []
 with open(DATA_DIR+'/driving_log.csv', newline='') as f:
     reader = csv.reader(f)
     for row in reader:
-        img = cv2.imread(row[0])
-        img_crop = img[56:160,:,:]
-        img_resize = cv2.resize(img_crop, (200,66))
-        X_train.append(img_resize)
-        y_train.append(np.float32(row[3]))
+        if row[0] != 'center':
+            img = cv2.imread(DATA_DIR+"/"+row[0])
+            img_crop = img[56:160,:,:]
+            img_resize = cv2.resize(img_crop, (200,66))
+            X_train.append(img_resize)
+            y_train.append(np.float32(row[3]))
 
 # sanity check
 #for i in range(len(X_train)):
@@ -63,7 +64,7 @@ print("y_train = ", y_train)
 # -------------------
 # Save to pickle file
 # -------------------
-pickle_file = 'preprocessed.pickle'
+pickle_file = 'data.pickle'
 if not os.path.isfile(pickle_file):
     print('Saving preprocessed data to pickle file...')
     try:
