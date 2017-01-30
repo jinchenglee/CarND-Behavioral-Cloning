@@ -1,14 +1,1 @@
-,,,Steering Angle,Throttle,Break,Speed
-./driving_data/IMG/center_2017_01_28_11_27_32_518.jpg, ./driving_data/IMG/left_2017_01_28_11_27_32_518.jpg, ./driving_data/IMG/right_2017_01_28_11_27_32_518.jpg,0.326187,1,0,30.16523
-./driving_data/IMG/center_2017_01_28_11_27_32_625.jpg, ./driving_data/IMG/left_2017_01_28_11_27_32_625.jpg, ./driving_data/IMG/right_2017_01_28_11_27_32_625.jpg,0.3438122,1,0,30.17894
-./driving_data/IMG/center_2017_01_28_11_27_32_726.jpg, ./driving_data/IMG/left_2017_01_28_11_27_32_726.jpg, ./driving_data/IMG/right_2017_01_28_11_27_32_726.jpg,0.0630421,1,0,30.19024
-./driving_data/IMG/center_2017_01_28_11_27_32_887.jpg, ./driving_data/IMG/left_2017_01_28_11_27_32_887.jpg, ./driving_data/IMG/right_2017_01_28_11_27_32_887.jpg,0,1,0,30.19083
-./driving_data/IMG/center_2017_01_28_11_27_32_998.jpg, ./driving_data/IMG/left_2017_01_28_11_27_32_998.jpg, ./driving_data/IMG/right_2017_01_28_11_27_32_998.jpg,0,1,0,30.19055
-./driving_data/IMG/center_2017_01_28_11_27_33_150.jpg, ./driving_data/IMG/left_2017_01_28_11_27_33_150.jpg, ./driving_data/IMG/right_2017_01_28_11_27_33_150.jpg,0,1,0,30.19052
-./driving_data/IMG/center_2017_01_28_11_27_33_253.jpg, ./driving_data/IMG/left_2017_01_28_11_27_33_253.jpg, ./driving_data/IMG/right_2017_01_28_11_27_33_253.jpg,0,1,0,30.1898
-./driving_data/IMG/center_2017_01_28_11_27_33_356.jpg, ./driving_data/IMG/left_2017_01_28_11_27_33_356.jpg, ./driving_data/IMG/right_2017_01_28_11_27_33_356.jpg,0,1,0,30.19035
-./driving_data/IMG/center_2017_01_28_11_27_33_462.jpg, ./driving_data/IMG/left_2017_01_28_11_27_33_462.jpg, ./driving_data/IMG/right_2017_01_28_11_27_33_462.jpg,0,1,0,30.18987
-./driving_data/IMG/center_2017_01_28_11_27_33_570.jpg, ./driving_data/IMG/left_2017_01_28_11_27_33_570.jpg, ./driving_data/IMG/right_2017_01_28_11_27_33_570.jpg,0,1,0,30.19026
-./driving_data/IMG/center_2017_01_28_11_27_33_684.jpg, ./driving_data/IMG/left_2017_01_28_11_27_33_684.jpg, ./driving_data/IMG/right_2017_01_28_11_27_33_684.jpg,-0.04277998,1,0,30.18988
-./driving_data/IMG/center_2017_01_28_11_27_33_792.jpg, ./driving_data/IMG/left_2017_01_28_11_27_33_792.jpg, ./driving_data/IMG/right_2017_01_28_11_27_33_792.jpg,-0.339882,1,0,30.16326
-./driving_data/IMG/center_2017_01_28_11_27_33_895.jpg, ./driving_data/IMG/left_2017_01_28_11_27_33_895.jpg, ./driving_data/IMG/right_2017_01_28_11_27_33_895.jpg,-0.2875859,1,0,30.18385
+./bootstrap/IMG/center_2017_01_28_11_27_32_625.jpg, ./bootstrap/IMG/left_2017_01_28_11_27_32_625.jpg, ./bootstrap/IMG/right_2017_01_28_11_27_32_625.jpg,3.438122,1,0,30.17894./bootstrap/IMG/center_2017_01_28_11_27_33_570.jpg, ./bootstrap/IMG/left_2017_01_28_11_27_33_570.jpg, ./bootstrap/IMG/right_2017_01_28_11_27_33_570.jpg,0,1,0,30.19026./bootstrap/IMG/center_2017_01_28_11_27_33_792.jpg, ./bootstrap/IMG/left_2017_01_28_11_27_33_792.jpg, ./bootstrap/IMG/right_2017_01_28_11_27_33_792.jpg,-3.39882,1,0,30.16326

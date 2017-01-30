@@ -46,19 +46,19 @@ model.add(Flatten())
 # layer 5, fc
 model.add(Dense(1164))
 model.add(Activation('relu'))
-model.add(Dropout(0.5))
+#model.add(Dropout(0.5))
 # layer 6, fc
 model.add(Dense(100))
 model.add(Activation('relu'))
-model.add(Dropout(0.5))
+#model.add(Dropout(0.5))
 # layer 7, fc
 model.add(Dense(50))
 model.add(Activation('relu'))
-model.add(Dropout(0.5))
+#model.add(Dropout(0.5))
 # layer 8, fc
 model.add(Dense(10))
 model.add(Activation('relu'))
-model.add(Dropout(0.5))
+#model.add(Dropout(0.5))
 # layer output
 model.add(Dense(1))
 
@@ -67,8 +67,8 @@ model.add(Dense(1))
 # Compile and train the model
 # -------------------------------------
 #model.load_weights('nvidia_net_weights.h5')
-opt = SGD(lr=1e-6)
-model.compile(opt, 'mse', ['accuracy'])
+opt = SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
+model.compile(optimizer=opt, loss='mse', metrics=['accuracy'])
 model.summary()
 
 history = model.fit(X_train, y_train, nb_epoch=300, validation_split=0.0)
