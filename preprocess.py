@@ -3,8 +3,17 @@ import numpy as np
 import cv2
 import pickle
 import os
+import sys
 
-DATA_DIR = './recover_data_3'
+# -------------------------------------
+# Command line argument processing
+# -------------------------------------
+if len(sys.argv) < 2:
+    print("Missing training data file.")
+    print("python3 model.py <data.pickle>")
+
+DATA_DIR = str(sys.argv[1])
+
 
 def normalize_grayscale(image_data):
     """
@@ -106,7 +115,8 @@ print("y_train = ", y_train)
 # -------------------
 # Save to pickle file
 # -------------------
-pickle_file = 'recover_data_3.pickle'
+pickle_file = DATA_DIR+".pickle"
+print(pickle_file)
 if not os.path.isfile(pickle_file):
     print('Saving preprocessed data to pickle file...')
     try:

@@ -38,30 +38,30 @@ X_train, y_train = data['train_dataset'], data['train_labels']
 # -------------------------------------
 model = Sequential()
 # layer 1, conv
-model.add(Convolution2D(24, 5, 5, subsample=(2,2), input_shape=(66, 200, 3)))
+model.add(Convolution2D(36, 5, 5, subsample=(2,2), input_shape=(66, 200, 3)))
 model.add(Activation('relu'))
 # layer 2, conv
-model.add(Convolution2D(36, 5, 5, subsample=(2,2)))
-model.add(Activation('relu'))
-# layer 3, conv
 model.add(Convolution2D(48, 5, 5, subsample=(2,2)))
 model.add(Activation('relu'))
-# layer 4, conv
-model.add(Convolution2D(64, 3, 3))
+# layer 3, conv
+model.add(Convolution2D(64, 5, 5, subsample=(2,2)))
 model.add(Activation('relu'))
 # layer 4, conv
-model.add(Convolution2D(64, 3, 3))
+model.add(Convolution2D(96, 3, 3))
+model.add(Activation('relu'))
+# layer 4, conv
+model.add(Convolution2D(96, 3, 3))
 model.add(Activation('relu'))
 # Flatten
 model.add(Flatten())
 # layer 5, fc
 model.add(Dense(1164))
 model.add(Activation('relu'))
-#model.add(Dropout(0.5))
+model.add(Dropout(0.6))
 # layer 6, fc
 model.add(Dense(100))
 model.add(Activation('relu'))
-#model.add(Dropout(0.5))
+model.add(Dropout(0.6))
 # layer 7, fc
 model.add(Dense(50))
 model.add(Activation('relu'))
@@ -77,31 +77,31 @@ model.add(Dense(1))
 # -------------------------------------
 # Compile and train the model
 # -------------------------------------
-#model.load_weights('model.h5')
-#opt = SGD(lr=0.002, decay=1e-6, momentum=0.9, nesterov=True)
-opt = Adam(lr=0.001)
+model.load_weights('model.h5')
+#opt = SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
+opt = Adam(lr=0.0002)
 model.compile(optimizer=opt, loss='mse', metrics=['accuracy'])
 model.summary()
 
-history = model.fit(X_train, y_train, nb_epoch=15, batch_size=64, validation_split=0.2)
+history = model.fit(X_train, y_train, nb_epoch=10, batch_size=64, validation_split=0.2)
 # list all data in history
 print(history.history.keys())
-# summarize history for accuracy
-plt.plot(history.history['acc'])
-#plt.plot(history.history['val_acc'])
-plt.title('model accuracy')
-plt.ylabel('accuracy')
-plt.xlabel('epoch')
-#plt.legend(['train', 'test'], loc='upper left')
-plt.show()
-# summarize history for loss
-plt.plot(history.history['loss'])
-#plt.plot(history.history['val_loss'])
-plt.title('model loss')
-plt.ylabel('loss')
-plt.xlabel('epoch')
-#plt.legend(['train', 'test'], loc='upper left')
-plt.show()
+## summarize history for accuracy
+#plt.plot(history.history['acc'])
+##plt.plot(history.history['val_acc'])
+#plt.title('model accuracy')
+#plt.ylabel('accuracy')
+#plt.xlabel('epoch')
+##plt.legend(['train', 'test'], loc='upper left')
+#plt.show()
+## summarize history for loss
+#plt.plot(history.history['loss'])
+##plt.plot(history.history['val_loss'])
+#plt.title('model loss')
+#plt.ylabel('loss')
+#plt.xlabel('epoch')
+##plt.legend(['train', 'test'], loc='upper left')
+#plt.show()
 
 # -------------------------------------
 # Saving the results
@@ -115,5 +115,5 @@ with open("model.json", "w") as json_file:
 # -------------------------------------
 # Evaluate the trained model 
 # -------------------------------------
-for i in range(200):
+for i in range(50):
     print(y_train[i], float(model.predict(X_train[i].reshape([1,66,200,3]), batch_size=1)))
