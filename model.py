@@ -6,21 +6,32 @@ from keras.optimizers import Adam, SGD
 from keras.layers.core import Dense, Activation, Flatten, Dropout
 from keras.layers.convolutional import Convolution2D
 from keras.layers.pooling import MaxPooling2D
+from keras.preprocessing.image import *
 
-import pickle
-
+from sklearn.utils import shuffle
 import matplotlib.pyplot as plt
+import pickle
+import sys
+
+# -------------------------------------
+# Command line argument processing
+# -------------------------------------
+if len(sys.argv) < 2:
+    print("Missing training data file.")
+    print("python3 model.py <data.pickle>")
+
+data_file = str(sys.argv[1])
 
 # -------------------------------------
 # Data preparation
 # -------------------------------------
-data_file = "./data.pickle"
 with open(data_file, mode='rb') as f:
     data = pickle.load(f)
 
 X_train, y_train = data['train_dataset'], data['train_labels']
 #X_valid, y_valid = data['valid_dataset'], data['valid_labels']
 #X_test, y_test = data['test_dataset'], data['test_labels']
+#X_train, y_train = shuffle(X_train, y_train)
 
 # -------------------------------------
 # Cover of NVidia end-to-end network
@@ -72,7 +83,7 @@ opt = Adam(lr=0.001)
 model.compile(optimizer=opt, loss='mse', metrics=['accuracy'])
 model.summary()
 
-history = model.fit(X_train, y_train, nb_epoch=10, batch_size=64, validation_split=0.2)
+history = model.fit(X_train, y_train, nb_epoch=15, batch_size=64, validation_split=0.2)
 # list all data in history
 print(history.history.keys())
 # summarize history for accuracy
@@ -105,4 +116,4 @@ with open("model.json", "w") as json_file:
 # Evaluate the trained model 
 # -------------------------------------
 for i in range(200):
-    print(float(model.predict(X_train[i].reshape([1,66,200,3]), batch_size=1)))
+    print(y_train[i], float(model.predict(X_train[i].reshape([1,66,200,3]), batch_size=1)))
