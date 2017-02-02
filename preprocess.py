@@ -49,8 +49,8 @@ def normalize_color(image_data):
 X_train = []
 y_train = []
 
-SMALL_SCALE = 0.8
-LARGE_SCALE = 1.25
+SMALL_SCALE = 0.9
+LARGE_SCALE = 1.1
 
 i = 0
 with open(DATA_DIR+'/driving_log.csv', newline='') as f:
@@ -89,47 +89,47 @@ with open(DATA_DIR+'/driving_log.csv', newline='') as f:
             i = i +1
             print(i)
 
-i = 0
-with open(DATA_DIR+'/driving_log.csv', newline='') as f:
-    reader = csv.reader(f)
-    for row in reader:
-        if row[0] != 'center':
-            img = cv2.imread(DATA_DIR+"/"+row[0])
-            img_crop = img[56:160,:,:]
-            img_resize = cv2.resize(img_crop, (200,66))
-            angle = np.float32(row[3])
-            # Horizontally flipped version of the image
-            img_resize_flip = cv2.flip(img_resize,0)
-            X_train.append(img_resize_flip)
-            y_train.append(-angle)
-
-            if angle > 0: # right turn
-                l_angle = LARGE_SCALE * angle
-                r_angle = SMALL_SCALE * angle
-            else: # left turn
-                l_angle = SMALL_SCALE * angle
-                r_angle = LARGE_SCALE* angle
-
-            # left
-            img = cv2.imread(DATA_DIR+"/"+row[1])
-            img_crop = img[56:160,:,:]
-            img_resize = cv2.resize(img_crop, (200,66))
-            # Horizontally flipped version of the image
-            img_resize_flip = cv2.flip(img_resize,0)
-            X_train.append(img_resize_flip)
-            y_train.append(-l_angle)
-
-            # right
-            img = cv2.imread(DATA_DIR+"/"+row[2])
-            img_crop = img[56:160,:,:]
-            img_resize = cv2.resize(img_crop, (200,66))
-            # Horizontally flipped version of the image
-            img_resize_flip = cv2.flip(img_resize,0)
-            X_train.append(img_resize_flip)
-            y_train.append(-r_angle)
-
-            i = i +1
-            print(i)
+#<<JC>> i = 0
+#<<JC>> with open(DATA_DIR+'/driving_log.csv', newline='') as f:
+#<<JC>>     reader = csv.reader(f)
+#<<JC>>     for row in reader:
+#<<JC>>         if row[0] != 'center':
+#<<JC>>             img = cv2.imread(DATA_DIR+"/"+row[0])
+#<<JC>>             img_crop = img[56:160,:,:]
+#<<JC>>             img_resize = cv2.resize(img_crop, (200,66))
+#<<JC>>             angle = np.float32(row[3])
+#<<JC>>             # Horizontally flipped version of the image
+#<<JC>>             img_resize_flip = cv2.flip(img_resize,0)
+#<<JC>>             X_train.append(img_resize_flip)
+#<<JC>>             y_train.append(-angle)
+#<<JC>> 
+#<<JC>>             if angle > 0: # right turn
+#<<JC>>                 l_angle = LARGE_SCALE * angle
+#<<JC>>                 r_angle = SMALL_SCALE * angle
+#<<JC>>             else: # left turn
+#<<JC>>                 l_angle = SMALL_SCALE * angle
+#<<JC>>                 r_angle = LARGE_SCALE* angle
+#<<JC>> 
+#<<JC>>             # left
+#<<JC>>             img = cv2.imread(DATA_DIR+"/"+row[1])
+#<<JC>>             img_crop = img[56:160,:,:]
+#<<JC>>             img_resize = cv2.resize(img_crop, (200,66))
+#<<JC>>             # Horizontally flipped version of the image
+#<<JC>>             img_resize_flip = cv2.flip(img_resize,0)
+#<<JC>>             X_train.append(img_resize_flip)
+#<<JC>>             y_train.append(-l_angle)
+#<<JC>> 
+#<<JC>>             # right
+#<<JC>>             img = cv2.imread(DATA_DIR+"/"+row[2])
+#<<JC>>             img_crop = img[56:160,:,:]
+#<<JC>>             img_resize = cv2.resize(img_crop, (200,66))
+#<<JC>>             # Horizontally flipped version of the image
+#<<JC>>             img_resize_flip = cv2.flip(img_resize,0)
+#<<JC>>             X_train.append(img_resize_flip)
+#<<JC>>             y_train.append(-r_angle)
+#<<JC>> 
+#<<JC>>             i = i +1
+#<<JC>>             print(i)
 
 
 # sanity check

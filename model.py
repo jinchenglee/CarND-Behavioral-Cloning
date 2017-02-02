@@ -83,7 +83,7 @@ model.add(Dense(1))
 # -------------------------------------
 model.load_weights('model.h5')
 #opt = SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
-opt = Adam(lr=0.00001)
+opt = Adam(lr=0.00005)
 model.compile(optimizer=opt, loss='mse', metrics=['accuracy'])
 model.summary()
 
