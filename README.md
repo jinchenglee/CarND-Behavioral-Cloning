@@ -8,3 +8,8 @@
   - Moved on to training data provided by Udacity. It contains ~8k images.
   - It took me a while to be able to connect to simulator and try my net. Drive.py needs customization. 
   - Training with ~20 epoches, the car can pass first 2-3 curves, then headed off track and into water. I'm still very excited already, :)
+
+* Track1 at 30 mph
+  - Steps: 
+  - 1. Training from scratch with left/center/right images augmented from udacity dataset. With this alone, car will crash into wall on black bridge on track1.  
+  - 2. Train based on step 1 result but with original udacity dataset, not the augmented one. That's it.
