@@ -89,17 +89,48 @@ with open(DATA_DIR+'/driving_log.csv', newline='') as f:
             i = i +1
             print(i)
 
-#with open(DATA_DIR+'/driving_log.csv', newline='') as f:
-#    reader = csv.reader(f)
-#    for row in reader:
-#        if row[0] != 'center':
-#            img = cv2.imread(DATA_DIR+"/"+row[0])
-#            img_crop = img[56:160,:,:]
-#            img_resize = cv2.resize(img_crop, (200,66))
-#            # Horizontally flipped version of the image
-#            img_resize_flip = cv2.flip(img_resize,0)
-#            X_train.append(img_resize_flip)
-#            y_train.append(-np.float32(row[3]))
+i = 0
+with open(DATA_DIR+'/driving_log.csv', newline='') as f:
+    reader = csv.reader(f)
+    for row in reader:
+        if row[0] != 'center':
+            img = cv2.imread(DATA_DIR+"/"+row[0])
+            img_crop = img[56:160,:,:]
+            img_resize = cv2.resize(img_crop, (200,66))
+            angle = np.float32(row[3])
+            # Horizontally flipped version of the image
+            img_resize_flip = cv2.flip(img_resize,0)
+            X_train.append(img_resize_flip)
+            y_train.append(-angle)
+
+            if angle > 0: # right turn
+                l_angle = LARGE_SCALE * angle
+                r_angle = SMALL_SCALE * angle
+            else: # left turn
+                l_angle = SMALL_SCALE * angle
+                r_angle = LARGE_SCALE* angle
+
+            # left
+            img = cv2.imread(DATA_DIR+"/"+row[1])
+            img_crop = img[56:160,:,:]
+            img_resize = cv2.resize(img_crop, (200,66))
+            # Horizontally flipped version of the image
+            img_resize_flip = cv2.flip(img_resize,0)
+            X_train.append(img_resize_flip)
+            y_train.append(-l_angle)
+
+            # right
+            img = cv2.imread(DATA_DIR+"/"+row[2])
+            img_crop = img[56:160,:,:]
+            img_resize = cv2.resize(img_crop, (200,66))
+            # Horizontally flipped version of the image
+            img_resize_flip = cv2.flip(img_resize,0)
+            X_train.append(img_resize_flip)
+            y_train.append(-r_angle)
+
+            i = i +1
+            print(i)
+
 
 # sanity check
 #for i in range(len(X_train)):

@@ -43,25 +43,29 @@ model.add(Activation('relu'))
 # layer 2, conv
 model.add(Convolution2D(48, 5, 5, subsample=(2,2)))
 model.add(Activation('relu'))
+model.add(Dropout(0.5))
 # layer 3, conv
 model.add(Convolution2D(64, 5, 5, subsample=(2,2)))
 model.add(Activation('relu'))
+model.add(Dropout(0.5))
 # layer 4, conv
 model.add(Convolution2D(96, 3, 3))
 model.add(Activation('relu'))
+model.add(Dropout(0.5))
 # layer 4, conv
 model.add(Convolution2D(96, 3, 3))
 model.add(Activation('relu'))
+model.add(Dropout(0.5))
 # Flatten
 model.add(Flatten())
 # layer 5, fc
 model.add(Dense(1164))
 model.add(Activation('relu'))
-model.add(Dropout(0.6))
+model.add(Dropout(0.5))
 # layer 6, fc
 model.add(Dense(100))
 model.add(Activation('relu'))
-model.add(Dropout(0.6))
+model.add(Dropout(0.5))
 # layer 7, fc
 model.add(Dense(50))
 model.add(Activation('relu'))
@@ -79,7 +83,7 @@ model.add(Dense(1))
 # -------------------------------------
 model.load_weights('model.h5')
 #opt = SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
-opt = Adam(lr=0.0002)
+opt = Adam(lr=0.00001)
 model.compile(optimizer=opt, loss='mse', metrics=['accuracy'])
 model.summary()
 
