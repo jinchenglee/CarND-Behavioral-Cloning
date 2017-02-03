@@ -43,7 +43,15 @@ X_train, X_valid, y_train, y_valid = train_test_split(
 #X_train, y_train = shuffle(X_train, y_train)
 print(X_train.shape, y_train.shape, X_valid.shape, y_valid.shape)
 
+#train_datagen = ImageDataGenerator(
+#            rescale=1./255,
+#            samplewise_center=True,
+#            samplewise_std_normalization=True
+#            )
 train_datagen = ImageDataGenerator(
+            rescale=1./255,
+            samplewise_center=True,
+            samplewise_std_normalization=True,
             rotation_range=10,
             height_shift_range=0.1,
             shear_range= 0.2,
@@ -52,7 +60,11 @@ train_datagen = ImageDataGenerator(
           )
 train_datagen.fit(X_train)
 
-val_datagen = ImageDataGenerator()
+val_datagen = ImageDataGenerator(
+            rescale=1./255,
+            samplewise_center=True,
+            samplewise_std_normalization=True
+            )
 val_datagen.fit(X_valid)
 
 
@@ -116,7 +128,7 @@ history = model.fit_generator(
                 # ==== Use below line to do normal training
                 train_datagen.flow(X_train, y_train, batch_size=64), 
                 samples_per_epoch=X_train.shape[0], 
-                nb_epoch=5,
+                nb_epoch=10,
                 validation_data=val_datagen.flow(X_valid, y_valid, batch_size=64), 
                 nb_val_samples=X_valid.shape[0]
                 )
@@ -152,5 +164,5 @@ with open("model.json", "w") as json_file:
 # -------------------------------------
 # Evaluate the trained model 
 # -------------------------------------
-for i in range(50):
-    print(y_train[i], float(model.predict(X_train[i].reshape([1,66,200,3]), batch_size=1)))
+#for i in range(50):
+#    print(y_train[i], float(model.predict(X_train[i].reshape([1,66,200,3]), batch_size=1)))
