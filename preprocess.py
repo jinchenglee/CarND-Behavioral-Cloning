@@ -138,11 +138,11 @@ with open(DATA_DIR+'/driving_log.csv', newline='') as f:
 cv2.imwrite("preprocessing_sanity_chk.png", X_train[23])
 
 # Convert to numpy array
-#X_train = normalize_color(np.array(X_train))
-#y_train = np.array(y_train)
-#throttle = np.array(throttle)
-#brake = np.array(brake)
-#speed = np.array(speed)
+X_train = np.array(X_train)
+y_train = np.array(y_train)
+throttle = np.array(throttle)
+brake = np.array(brake)
+speed = np.array(speed)
 
 #print("max X_train = ", np.max(X_train))
 #print("min X_train = ", np.min(X_train))
@@ -153,15 +153,14 @@ print("Total samples: ", len(y_train))
 # Save to HDF5 file
 # -------------------
 h5_file = DATA_DIR+".h5"
-print(h5_file)
 if not os.path.isfile(h5_file):
-    print('Saving preprocessed data to HDF5 file...')
+    print('Saving preprocessed data to HDF5 file...', h5_file)
     try:
         with tables.open_file(h5_file, 'w') as f:
             filters = tables.Filters(complevel=5, complib='blosc')
 
-            #f_img = f.create_earray(f.root, 'img', tables.Atom.from_dtype(X_train[0].dtype), shape=(0,X_train.shape[1],X_train.shape[2],X_train.shape[3]), filters=filters, expectedrows=X_train.shape[0])
-            f_img = f.create_earray(f.root, 'img', tables.Atom.from_dtype(X_train[0].dtype), shape=(0,66,200,3), filters=filters, expectedrows=len(X_train))
+            f_img = f.create_earray(f.root, 'img', tables.Atom.from_dtype(X_train[0].dtype), shape=(0,X_train.shape[1],X_train.shape[2],X_train.shape[3]), filters=filters, expectedrows=X_train.shape[0])
+            #f_img = f.create_earray(f.root, 'img', tables.Atom.from_dtype(X_train[0].dtype), shape=(0,66,200,3), filters=filters, expectedrows=len(X_train))
             f_steer = f.create_earray(f.root, 'steer', tables.Atom.from_dtype(np.dtype('float')), shape=(0,), filters=filters)
             f_throttle = f.create_earray(f.root, 'throttle', tables.Atom.from_dtype(np.dtype('float')), shape=(0,), filters=filters)
             f_brake = f.create_earray(f.root, 'brake', tables.Atom.from_dtype(np.dtype('float')), shape=(0,), filters=filters)
