@@ -9,8 +9,10 @@ from keras.layers.pooling import MaxPooling2D
 from keras.preprocessing.image import *
 
 from sklearn.utils import shuffle
+from sklearn.model_selection import train_test_split
+
 import matplotlib.pyplot as plt
-import pickle
+import tables
 import sys
 
 # -------------------------------------
@@ -18,20 +20,41 @@ import sys
 # -------------------------------------
 if len(sys.argv) < 2:
     print("Missing training data file.")
-    print("python3 model.py <data.pickle>")
+    print("python3 model.py <data.h5>")
 
-data_file = str(sys.argv[1])
+H5_FILE = str(sys.argv[1])
+
+# ------------------
+# Read data from preprocessed HDF5 file
+# ------------------
+f = tables.open_file(H5_FILE, 'r')
 
 # -------------------------------------
 # Data preparation
 # -------------------------------------
-with open(data_file, mode='rb') as f:
-    data = pickle.load(f)
 
-X_train, y_train = data['train_dataset'], data['train_labels']
-#X_valid, y_valid = data['valid_dataset'], data['valid_labels']
-#X_test, y_test = data['test_dataset'], data['test_labels']
+X_train = np.array(f.root.img)
+y_train = np.array(f.root.steer)
+print(X_train.shape, y_train.shape)
+
+X_train, X_valid, y_train, y_valid = train_test_split(
+                X_train, y_train, test_size=0.2, random_state=88
+                )
 #X_train, y_train = shuffle(X_train, y_train)
+print(X_train.shape, y_train.shape, X_valid.shape, y_valid.shape)
+
+train_datagen = ImageDataGenerator(
+            rotation_range=10,
+            height_shift_range=0.1,
+            shear_range= 0.2,
+            zoom_range = 0.1,
+            fill_mode = 'nearest'
+          )
+train_datagen.fit(X_train)
+
+val_datagen = ImageDataGenerator()
+val_datagen.fit(X_valid)
+
 
 # -------------------------------------
 # Cover of NVidia end-to-end network
@@ -81,13 +104,23 @@ model.add(Dense(1))
 # -------------------------------------
 # Compile and train the model
 # -------------------------------------
-model.load_weights('model.h5')
+#model.load_weights('model.h5')
 #opt = SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
-opt = Adam(lr=0.00005)
+opt = Adam(lr=0.0002)
 model.compile(optimizer=opt, loss='mse', metrics=['accuracy'])
 model.summary()
 
-history = model.fit(X_train, y_train, nb_epoch=10, batch_size=64, validation_split=0.2)
+history = model.fit_generator(
+                # ==== Unmask below line to dump image out to take snapshot of what's being fed into training process.
+                #train_datagen.flow(X_train, y_train, batch_size=64,save_to_dir="./", save_prefix="fitgen_", save_format="png"), 
+                # ==== Use below line to do normal training
+                train_datagen.flow(X_train, y_train, batch_size=64), 
+                samples_per_epoch=X_train.shape[0], 
+                nb_epoch=5,
+                validation_data=val_datagen.flow(X_valid, y_valid, batch_size=64), 
+                nb_val_samples=X_valid.shape[0]
+                )
+
 # list all data in history
 print(history.history.keys())
 ## summarize history for accuracy

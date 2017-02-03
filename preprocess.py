@@ -41,6 +41,8 @@ with open(DATA_DIR+'/driving_log.csv', newline='') as f:
             img = cv2.imread(DATA_DIR+"/"+row[0])
             img_crop = img[56:160,:,:]
             img_resize = cv2.resize(img_crop, (200,66))
+            # Opencv bgr to rgb
+            img_resize = img_resize[...,::-1]
             angle = np.float32(row[3])
             X_train.append(img_resize)
             y_train.append(angle)
@@ -64,6 +66,8 @@ with open(DATA_DIR+'/driving_log.csv', newline='') as f:
             img = cv2.imread(DATA_DIR+"/"+row[1])
             img_crop = img[56:160,:,:]
             img_resize = cv2.resize(img_crop, (200,66))
+            # Opencv bgr to rgb
+            img_resize = img_resize[...,::-1]
             X_train.append(img_resize)
             y_train.append(l_angle)
             throttle.append(row_4)
@@ -74,6 +78,8 @@ with open(DATA_DIR+'/driving_log.csv', newline='') as f:
             img = cv2.imread(DATA_DIR+"/"+row[2])
             img_crop = img[56:160,:,:]
             img_resize = cv2.resize(img_crop, (200,66))
+            # Opencv bgr to rgb
+            img_resize = img_resize[...,::-1]
             X_train.append(img_resize)
             y_train.append(r_angle)
             throttle.append(row_4)
@@ -93,6 +99,8 @@ with open(DATA_DIR+'/driving_log.csv', newline='') as f:
             angle = np.float32(row[3])
             # Horizontally flipped version of the image
             img_resize_flip = cv2.flip(img_resize,0)
+            # Opencv bgr to rgb
+            img_resize_flip = img_resize_flip[...,::-1]
             X_train.append(img_resize_flip)
             y_train.append(-angle)
             row_4 = np.float32(row[4])
@@ -115,6 +123,8 @@ with open(DATA_DIR+'/driving_log.csv', newline='') as f:
             img_resize = cv2.resize(img_crop, (200,66))
             # Horizontally flipped version of the image
             img_resize_flip = cv2.flip(img_resize,0)
+            # Opencv bgr to rgb
+            img_resize_flip = img_resize_flip[...,::-1]
             X_train.append(img_resize_flip)
             y_train.append(-l_angle)
             throttle.append(row_4)
@@ -127,6 +137,8 @@ with open(DATA_DIR+'/driving_log.csv', newline='') as f:
             img_resize = cv2.resize(img_crop, (200,66))
             # Horizontally flipped version of the image
             img_resize_flip = cv2.flip(img_resize,0)
+            # Opencv bgr to rgb
+            img_resize_flip = img_resize_flip[...,::-1]
             X_train.append(img_resize_flip)
             y_train.append(-r_angle)
             throttle.append(row_4)
@@ -135,7 +147,10 @@ with open(DATA_DIR+'/driving_log.csv', newline='') as f:
       print("Horizontal flipping done.")
 
 # sanity check
-cv2.imwrite("preprocessing_sanity_chk.png", X_train[23])
+# Opencv: rgb back to bgr
+img_resize = X_train[23]
+img_resize = img_resize[...,[2,1,0]]
+cv2.imwrite("preprocessing_sanity_chk.png", img_resize)
 
 # Convert to numpy array
 X_train = np.array(X_train)
