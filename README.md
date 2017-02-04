@@ -13,3 +13,9 @@
   - Steps: 
   - 1. Training from scratch with left/center/right images augmented from udacity dataset. With this alone, car will crash into wall on black bridge on track1.  
   - 2. Train based on step 1 result but with original udacity dataset, not the augmented one. That's it.
+
+* Track1 at 14, 24, 30 mph solid
+  - Changed database from pickle to tables(HDF5)
+  - Changed to use keras image generator, used random shear, zoom, rotation.
+  - Alternating between local recorded track1 and udacity dataset, used 1-2 times of left/right augmented track1 dataset, achieved the stable state.
+  - Still failed badly on track2. Has to deal with overfitting. 
