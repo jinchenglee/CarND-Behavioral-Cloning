@@ -33,6 +33,40 @@ def normalize_color(image_data):
     #print(np.min(img_normed_color))
     return img_normed_color
 
+# Below func. copied from: https://chatbotslife.com/using-augmentation-to-mimic-human-driving-496b569760a9#.kgjn97cup
+def augment_brightness_camera_images(image):
+    cv2.imwrite("ori.png", image)
+    image1 = cv2.cvtColor(image,cv2.COLOR_RGB2HSV)
+    #random_bright = .25+np.random.uniform()
+    random_bright = .25
+    #print(random_bright)
+    image1[:,:,2] = image1[:,:,2]*random_bright
+    image1 = cv2.cvtColor(image1,cv2.COLOR_HSV2RGB)
+    cv2.imwrite("after.png", image1)
+    return image1
+
+def add_random_shadow(image):
+    top_y = 320*np.random.uniform()
+    top_x = 0
+    bot_x = 160
+    bot_y = 320*np.random.uniform()
+    image_hls = cv2.cvtColor(image,cv2.COLOR_RGB2HLS)
+    shadow_mask = 0*image_hls[:,:,1]
+    X_m = np.mgrid[0:image.shape[0],0:image.shape[1]][0]
+    Y_m = np.mgrid[0:image.shape[0],0:image.shape[1]][1]
+    
+    shadow_mask[((X_m-top_x)*(bot_y-top_y) -(bot_x - top_x)*(Y_m-top_y) >=0)]=1
+    #random_bright = .25+.7*np.random.uniform()
+    if np.random.randint(2)==1:
+        random_bright = .5
+        cond1 = shadow_mask==1
+        cond0 = shadow_mask==0
+        if np.random.randint(2)==1:
+            image_hls[:,:,1][cond1] = image_hls[:,:,1][cond1]*random_bright
+        else:
+            image_hls[:,:,1][cond0] = image_hls[:,:,1][cond0]*random_bright    
+    image = cv2.cvtColor(image_hls,cv2.COLOR_HLS2RGB)
+    return image
 
 # -------------------------------------
 # Command line argument processing
@@ -70,6 +104,7 @@ with open(DATA_DIR+'/driving_log.csv', newline='') as f:
             img = cv2.imread(DATA_DIR+"/"+row[0])
             img_crop = img[56:160,:,:]
             img_resize = cv2.resize(img_crop, (200,66))
+            img_resize = add_random_shadow(img_resize)
             # Opencv bgr to rgb
             img_resize = img_resize[...,::-1]
             angle = np.float32(row[3])
@@ -95,6 +130,7 @@ with open(DATA_DIR+'/driving_log.csv', newline='') as f:
             img = cv2.imread(DATA_DIR+"/"+row[1])
             img_crop = img[56:160,:,:]
             img_resize = cv2.resize(img_crop, (200,66))
+            img_resize = add_random_shadow(img_resize)
             # Opencv bgr to rgb
             img_resize = img_resize[...,::-1]
             X_train.append(img_resize)
@@ -107,6 +143,7 @@ with open(DATA_DIR+'/driving_log.csv', newline='') as f:
             img = cv2.imread(DATA_DIR+"/"+row[2])
             img_crop = img[56:160,:,:]
             img_resize = cv2.resize(img_crop, (200,66))
+            img_resize = add_random_shadow(img_resize)
             # Opencv bgr to rgb
             img_resize = img_resize[...,::-1]
             X_train.append(img_resize)
@@ -125,6 +162,7 @@ with open(DATA_DIR+'/driving_log.csv', newline='') as f:
             img = cv2.imread(DATA_DIR+"/"+row[0])
             img_crop = img[56:160,:,:]
             img_resize = cv2.resize(img_crop, (200,66))
+            img_resize = add_random_shadow(img_resize)
             angle = np.float32(row[3])
             # Horizontally flipped version of the image
             img_resize_flip = cv2.flip(img_resize,0)
@@ -150,6 +188,7 @@ with open(DATA_DIR+'/driving_log.csv', newline='') as f:
             img = cv2.imread(DATA_DIR+"/"+row[1])
             img_crop = img[56:160,:,:]
             img_resize = cv2.resize(img_crop, (200,66))
+            img_resize = add_random_shadow(img_resize)
             # Horizontally flipped version of the image
             img_resize_flip = cv2.flip(img_resize,0)
             # Opencv bgr to rgb
@@ -164,6 +203,7 @@ with open(DATA_DIR+'/driving_log.csv', newline='') as f:
             img = cv2.imread(DATA_DIR+"/"+row[2])
             img_crop = img[56:160,:,:]
             img_resize = cv2.resize(img_crop, (200,66))
+            img_resize = add_random_shadow(img_resize)
             # Horizontally flipped version of the image
             img_resize_flip = cv2.flip(img_resize,0)
             # Opencv bgr to rgb
