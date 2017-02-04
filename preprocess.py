@@ -5,6 +5,35 @@ import tables
 import os
 import sys
 
+def normalize_grayscale(image_data):
+    """
+    Normalize the image data with Min-Max scaling to a range of [0.1, 0.9]
+    :param image_data: The image data to be normalized
+    :return: Normalized image data
+    """
+    img_max = np.max(image_data)
+    img_min = np.min(image_data)
+    a = -0.5
+    b = 0.5
+
+    img_normed = a + (b-a)*(image_data - img_min)/(img_max - img_min)
+    #print(np.max(img_normed))
+    #print(np.min(img_normed))
+    return img_normed
+
+def normalize_color(image_data):
+    """
+    Normalize the image data on per channel basis. 
+    """
+    img_normed_color = np.zeros_like(image_data, dtype=float)
+    for ch in range(image_data.shape[3]):
+        tmp = normalize_grayscale(image_data[:,:,:,ch])
+        img_normed_color[:,:,:,ch] = tmp
+    #print(np.max(img_normed_color))
+    #print(np.min(img_normed_color))
+    return img_normed_color
+
+
 # -------------------------------------
 # Command line argument processing
 # -------------------------------------
@@ -153,7 +182,7 @@ img_resize = img_resize[...,[2,1,0]]
 cv2.imwrite("preprocessing_sanity_chk.png", img_resize)
 
 # Convert to numpy array
-X_train = np.array(X_train)
+X_train = normalize_color(np.array(X_train))
 y_train = np.array(y_train)
 throttle = np.array(throttle)
 brake = np.array(brake)

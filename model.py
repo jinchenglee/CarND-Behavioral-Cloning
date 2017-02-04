@@ -20,9 +20,13 @@ import sys
 # -------------------------------------
 if len(sys.argv) < 2:
     print("Missing training data file.")
-    print("python3 model.py <data.h5>")
+    print("python3 model.py <data.h5> <epoch_cnt>")
 
 H5_FILE = str(sys.argv[1])
+
+EPOCH = 5
+if len(sys.argv) >2:
+    EPOCH = int(sys.argv[2])
 
 # ------------------
 # Read data from preprocessed HDF5 file
@@ -36,6 +40,7 @@ f = tables.open_file(H5_FILE, 'r')
 X_train = np.array(f.root.img)
 y_train = np.array(f.root.steer)
 print(X_train.shape, y_train.shape)
+print("Train data[23] mean = ", np.mean(X_train[23]))
 
 X_train, X_valid, y_train, y_valid = train_test_split(
                 X_train, y_train, test_size=0.2, random_state=88
@@ -44,14 +49,8 @@ X_train, X_valid, y_train, y_valid = train_test_split(
 print(X_train.shape, y_train.shape, X_valid.shape, y_valid.shape)
 
 #train_datagen = ImageDataGenerator(
-#            rescale=1./255,
-#            samplewise_center=True,
-#            samplewise_std_normalization=True
 #            )
 train_datagen = ImageDataGenerator(
-            rescale=1./255,
-            samplewise_center=True,
-            samplewise_std_normalization=True,
             rotation_range=10,
             height_shift_range=0.1,
             shear_range= 0.2,
@@ -61,9 +60,6 @@ train_datagen = ImageDataGenerator(
 train_datagen.fit(X_train)
 
 val_datagen = ImageDataGenerator(
-            rescale=1./255,
-            samplewise_center=True,
-            samplewise_std_normalization=True
             )
 val_datagen.fit(X_valid)
 
@@ -116,9 +112,9 @@ model.add(Dense(1))
 # -------------------------------------
 # Compile and train the model
 # -------------------------------------
-#model.load_weights('model.h5')
+model.load_weights('model.h5')
 #opt = SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
-opt = Adam(lr=0.0002)
+opt = Adam(lr=0.00005)
 model.compile(optimizer=opt, loss='mse', metrics=['accuracy'])
 model.summary()
 
@@ -128,7 +124,7 @@ history = model.fit_generator(
                 # ==== Use below line to do normal training
                 train_datagen.flow(X_train, y_train, batch_size=64), 
                 samples_per_epoch=X_train.shape[0], 
-                nb_epoch=10,
+                nb_epoch=EPOCH,
                 validation_data=val_datagen.flow(X_valid, y_valid, batch_size=64), 
                 nb_val_samples=X_valid.shape[0]
                 )
