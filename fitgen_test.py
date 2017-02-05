@@ -131,34 +131,4 @@ history = model.fit_generator(
 
 # list all data in history
 print(history.history.keys())
-## summarize history for accuracy
-#plt.plot(history.history['acc'])
-##plt.plot(history.history['val_acc'])
-#plt.title('model accuracy')
-#plt.ylabel('accuracy')
-#plt.xlabel('epoch')
-##plt.legend(['train', 'test'], loc='upper left')
-#plt.show()
-## summarize history for loss
-#plt.plot(history.history['loss'])
-##plt.plot(history.history['val_loss'])
-#plt.title('model loss')
-#plt.ylabel('loss')
-#plt.xlabel('epoch')
-##plt.legend(['train', 'test'], loc='upper left')
-#plt.show()
 
-# -------------------------------------
-# Saving the results
-# -------------------------------------
-model.save_weights('model.h5')
-
-model_json = model.to_json()
-with open("model.json", "w") as json_file:
-    json_file.write(model_json)
-
-# -------------------------------------
-# Evaluate the trained model 
-# -------------------------------------
-#for i in range(50):
-#    print(y_train[i], float(model.predict(X_train[i].reshape([1,66,200,3]), batch_size=1)))

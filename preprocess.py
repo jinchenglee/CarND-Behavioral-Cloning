@@ -33,23 +33,31 @@ def normalize_color(image_data):
     #print(np.min(img_normed_color))
     return img_normed_color
 
-# Below func. copied from: https://chatbotslife.com/using-augmentation-to-mimic-human-driving-496b569760a9#.kgjn97cup
-def augment_brightness_camera_images(image):
+def lower_luma(image):
+    RATIO = 0.5
     cv2.imwrite("ori.png", image)
-    image1 = cv2.cvtColor(image,cv2.COLOR_RGB2HSV)
-    #random_bright = .25+np.random.uniform()
-    random_bright = .25
-    #print(random_bright)
-    image1[:,:,2] = image1[:,:,2]*random_bright
-    image1 = cv2.cvtColor(image1,cv2.COLOR_HSV2RGB)
+    image1 = cv2.cvtColor(image,cv2.COLOR_RGB2YUV)
+    image1[:,:,0] = RATIO*image1[:,:,0]
+    image1 = cv2.cvtColor(image1,cv2.COLOR_YUV2RGB)
     cv2.imwrite("after.png", image1)
     return image1
 
+def augment_brightness(image):
+    #cv2.imwrite("ori.png", image)
+    image1 = cv2.cvtColor(image,cv2.COLOR_RGB2HSV)
+    random_bright = .25+np.random.uniform()
+    #print(random_bright)
+    image1[:,:,2] = image1[:,:,2]*random_bright
+    image1 = cv2.cvtColor(image1,cv2.COLOR_HSV2RGB)
+    #cv2.imwrite("after.png", image1)
+    return image1
+
+# Below func. copied from: https://chatbotslife.com/using-augmentation-to-mimic-human-driving-496b569760a9#.kgjn97cup
 def add_random_shadow(image):
-    top_y = 320*np.random.uniform()
+    top_y = image.shape[1]*np.random.uniform()
     top_x = 0
-    bot_x = 160
-    bot_y = 320*np.random.uniform()
+    bot_x = image.shape[0]
+    bot_y = image.shape[1]*np.random.uniform()
     image_hls = cv2.cvtColor(image,cv2.COLOR_RGB2HLS)
     shadow_mask = 0*image_hls[:,:,1]
     X_m = np.mgrid[0:image.shape[0],0:image.shape[1]][0]
