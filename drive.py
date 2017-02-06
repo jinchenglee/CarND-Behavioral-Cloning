@@ -21,6 +21,11 @@ from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_a
 import tensorflow as tf
 tf.python.control_flow_ops = tf
 
+import sys
+
+SPEED_LIMIT =20
+
+
 def normalize_grayscale(image_data):
     """
     Normalize the image data with Min-Max scaling to a range of [0.1, 0.9]
@@ -55,7 +60,6 @@ app = Flask(__name__)
 model = None
 prev_image_array = None
 
-
 @sio.on('telemetry')
 def telemetry(sid, data):
     # The current steering angle of the car
@@ -79,7 +83,7 @@ def telemetry(sid, data):
     # This model currently assumes that the features of the model are just the images. Feel free to change this.
     steering_angle = float(model.predict(transformed_image_array, batch_size=1))
     # The driving model currently just outputs a constant throttle. Feel free to edit this.
-    if np.float32(speed) < 30:
+    if np.float32(speed) < SPEED_LIMIT:
         throttle = 0.5
     else:
         throttle = .0

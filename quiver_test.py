@@ -73,4 +73,4 @@ model.summary()
 # -------------------------------------
 # Evaluate the trained model 
 # -------------------------------------
-server.launch(model, input_folder='./bootstrap/IMG')
+server.launch(model, input_folder='./quiver_img/IMG')

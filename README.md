@@ -19,3 +19,9 @@
   - Changed to use keras image generator, used random shear, zoom, rotation.
   - Alternating between local recorded track1 and udacity dataset, used 1-2 times of left/right augmented track1 dataset, achieved the stable state.
   - Still failed badly on track2. Has to deal with overfitting. 
+
+* Track2 shows sign of life, crashed at a right turn where has light background
+  - Recorded track2 training data
+  - Trained based on previous best model/weight, using smaller learning rate, for two five epochs. Loss at ~0.45.
+  - Checked still solid on track 1, speed 11, 20, 30 mph.
+  - Track 2 failed at a spot rith right turn that background is bright sky.
