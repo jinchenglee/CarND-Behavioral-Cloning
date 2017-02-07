@@ -20,8 +20,12 @@
   - Alternating between local recorded track1 and udacity dataset, used 1-2 times of left/right augmented track1 dataset, achieved the stable state.
   - Still failed badly on track2. Has to deal with overfitting. 
 
-* Track2 shows sign of life, crashed at a right turn where has light background
+* Track2 shows sign of life, crashed at a right turn where has light background (Choose fastest mode thus there's no shade in track2)
   - Recorded track2 training data
   - Trained based on previous best model/weight, using smaller learning rate, for two five epochs. Loss at ~0.45.
   - Checked still solid on track 1, speed 11, 20, 30 mph.
   - Track 2 failed at a spot rith right turn that background is bright sky.
+
+* Track2 completed at 30mph. 
+  - Recorded the failure scene (right turn with bright background) for several times of passing with right steering angle.
+  - Trained with lower lr for 5 epoches, RMSprop optimizer.

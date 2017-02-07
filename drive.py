@@ -23,8 +23,11 @@ tf.python.control_flow_ops = tf
 
 import sys
 
-SPEED_LIMIT =20
+SPEED_LIMIT = 31
 
+# Video recording
+fourcc = cv2.VideoWriter_fourcc('X','2','6','4')
+video = cv2.VideoWriter('recording.avi',fourcc,45,(200,66),True)
 
 def normalize_grayscale(image_data):
     """
@@ -44,8 +47,7 @@ def normalize_grayscale(image_data):
 
 def normalize_color(image_data):
     """
-    Normalize the image data on per channel basis. 
-    """
+    Normalize the image data on per channel basis.  """
     img_normed_color = np.zeros_like(image_data, dtype=float)
     for ch in range(image_data.shape[3]):
         tmp = normalize_grayscale(image_data[:,:,:,ch])
@@ -76,6 +78,10 @@ def telemetry(sid, data):
     #<<JC>> added following https://carnd-forums.udacity.com/questions/36054036/car-will-not-move
     img_crop = image_array[56:160,:,:]
     img_resize = cv2.resize(img_crop, (200,66))
+
+    img_record = cv2.cvtColor(img_resize, cv2.COLOR_RGB2BGR)
+    video.write(img_record)
+
     img_normed = normalize_color(img_resize[None,:,:,:])
 
     transformed_image_array = img_normed

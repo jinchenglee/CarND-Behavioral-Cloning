@@ -2,7 +2,7 @@ import tensorflow as tf
 tf.python.control_flow_ops = tf
 
 from keras.models import Sequential, model_from_json, load_model
-from keras.optimizers import Adam, SGD
+from keras.optimizers import *
 from keras.layers.core import Dense, Activation, Flatten, Dropout
 from keras.layers.convolutional import Convolution2D
 from keras.layers.pooling import MaxPooling2D
@@ -48,15 +48,15 @@ X_train, X_valid, y_train, y_valid = train_test_split(
 #X_train, y_train = shuffle(X_train, y_train)
 print(X_train.shape, y_train.shape, X_valid.shape, y_valid.shape)
 
-#train_datagen = ImageDataGenerator(
-#            )
 train_datagen = ImageDataGenerator(
-            rotation_range=10,
-            height_shift_range=0.1,
-            shear_range= 0.2,
-            zoom_range = 0.1,
-            fill_mode = 'nearest'
-          )
+            )
+#train_datagen = ImageDataGenerator(
+#            rotation_range=10,
+#            height_shift_range=0.1,
+#            shear_range= 0.2,
+#            zoom_range = 0.1,
+#            fill_mode = 'nearest'
+#          )
 train_datagen.fit(X_train)
 
 val_datagen = ImageDataGenerator(
@@ -114,7 +114,8 @@ model.add(Dense(1))
 # -------------------------------------
 model.load_weights('model.h5')
 #opt = SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
-opt = Adam(lr=0.00005)
+#opt = Adam(lr=0.0001)
+opt = RMSprop(lr=0.00002)
 model.compile(optimizer=opt, loss='mse', metrics=['accuracy'])
 model.summary()
 

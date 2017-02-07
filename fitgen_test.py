@@ -48,15 +48,15 @@ X_train, X_valid, y_train, y_valid = train_test_split(
 #X_train, y_train = shuffle(X_train, y_train)
 print(X_train.shape, y_train.shape, X_valid.shape, y_valid.shape)
 
-#train_datagen = ImageDataGenerator(
-#            )
 train_datagen = ImageDataGenerator(
-            rotation_range=10,
-            height_shift_range=0.1,
-            shear_range= 0.2,
-            zoom_range = 0.1,
-            fill_mode = 'nearest'
-          )
+            )
+#train_datagen = ImageDataGenerator(
+#            rotation_range=10,
+#            height_shift_range=0.1,
+#            shear_range= 0.2,
+#            zoom_range = 0.1,
+#            fill_mode = 'nearest'
+#          )
 train_datagen.fit(X_train)
 
 val_datagen = ImageDataGenerator(
