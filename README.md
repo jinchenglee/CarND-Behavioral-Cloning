@@ -29,3 +29,9 @@
 * Track2 completed at 30mph. 
   - Recorded the failure scene (right turn with bright background) for several times of passing with right steering angle.
   - Trained with lower lr for 5 epoches, RMSprop optimizer.
+
+* Track2 completed at 20mph w/ shadow turned on.
+  - steps:  
+    > git checkout model.json model.h5
+    > p3 model.py track2_recover.h5.warp_shadow 3
+
