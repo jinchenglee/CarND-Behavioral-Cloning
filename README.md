@@ -35,3 +35,13 @@
     > git checkout model.json model.h5
     > p3 model.py track2_recover.h5.warp_shadow 3
 
+* Track2 completed at 30mph w/ shadow on.
+  - Model becomes super sensitive. Very easy to overfit either to track2 or track1. Eg. passing on track2 for 30mph but failed with Zigzag on black bridge on track1.
+  - steps:
+    git checkout model.h5 model.json
+    p3 model.py track2_recover_2.h5.ori_shadow 3
+    (following is another git check in)
+    p3 model.py data.h5.shadow_lr 1 (track1) - baby step
+    p3 model.py track2_recover.h5.ori_shadow 1 - baby step
+    p3 model.py track2_recover_2.h5.ori_shadow 1 - baby step
+
