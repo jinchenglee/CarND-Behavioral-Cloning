@@ -23,7 +23,7 @@ tf.python.control_flow_ops = tf
 
 import sys
 
-SPEED_LIMIT = 20
+SPEED_LIMIT = 30
 
 # Video recording
 fourcc = cv2.VideoWriter_fourcc('X','2','6','4')
