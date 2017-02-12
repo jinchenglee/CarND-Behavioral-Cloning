@@ -23,11 +23,11 @@ tf.python.control_flow_ops = tf
 
 import sys
 
-SPEED_LIMIT = 30
+SPEED_LIMIT = 20
 
 # Video recording
 fourcc = cv2.VideoWriter_fourcc('X','2','6','4')
-video = cv2.VideoWriter('recording.avi',fourcc,45,(200,66),True)
+video = cv2.VideoWriter('recording.avi',fourcc,15,(200,66),True)
 
 def normalize_grayscale(image_data):
     """
@@ -80,7 +80,6 @@ def telemetry(sid, data):
     img_resize = cv2.resize(img_crop, (200,66))
 
     img_record = cv2.cvtColor(img_resize, cv2.COLOR_RGB2BGR)
-    video.write(img_record)
 
     img_normed = normalize_color(img_resize[None,:,:,:])
 
@@ -94,6 +93,16 @@ def telemetry(sid, data):
     else:
         throttle = .0
     print(steering_angle, throttle)
+
+    start_x = 100
+    start_y = 66
+    end_y = 30
+    end_x = start_x + steering_angle * (end_y - start_y)
+    end_x = int(end_x)
+    cv2.line(img_record, (start_x, start_y), (end_x, end_y), (255,255,255), 2)
+    #cv2.imwrite('drive_recording.jpg', img_record)
+    video.write(img_record)
+
     send_control(steering_angle, throttle)
 
 
