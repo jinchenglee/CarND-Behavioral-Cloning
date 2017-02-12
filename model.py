@@ -112,7 +112,7 @@ model.add(Dense(1))
 # -------------------------------------
 # Compile and train the model
 # -------------------------------------
-model.load_model('model.h5')
+model.load_weights('weights.h5')
 #opt = SGD(lr=0.000001, decay=1e-6, momentum=0.9, nesterov=True)
 opt = Adam(lr=0.00007)
 #opt = RMSprop(lr=0.00008)
@@ -133,6 +133,7 @@ history = model.fit_generator(
 # -------------------------------------
 # Saving the results
 # -------------------------------------
+model.save_weights('weights.h5')
 model.save('model.h5')
 
 
