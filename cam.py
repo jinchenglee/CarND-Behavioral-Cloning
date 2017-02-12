@@ -158,7 +158,7 @@ model.add(Dense(1))
 # -------------------------------------
 # Compile and train the model
 # -------------------------------------
-model.load_weights('model.h5')
+model.load_weights('weights.h5')
 model.summary()
 
 import os

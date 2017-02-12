@@ -14,6 +14,8 @@ from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 import tables
 import sys
+import cv2
+
 
 # -------------------------------------
 # Command line argument processing
@@ -24,7 +26,7 @@ if len(sys.argv) < 2:
 
 H5_FILE = str(sys.argv[1])
 
-EPOCH = 5
+EPOCH = 1
 if len(sys.argv) >2:
     EPOCH = int(sys.argv[2])
 
@@ -40,7 +42,7 @@ f = tables.open_file(H5_FILE, 'r')
 X_train = np.array(f.root.img)
 y_train = np.array(f.root.steer)
 print(X_train.shape, y_train.shape)
-print("Train data[23] mean = ", np.mean(X_train[23]))
+print("Train data[3] mean = ", np.mean(X_train[3]))
 
 X_train, X_valid, y_train, y_valid = train_test_split(
                 X_train, y_train, test_size=0.2, random_state=88
@@ -112,7 +114,7 @@ model.add(Dense(1))
 # -------------------------------------
 # Compile and train the model
 # -------------------------------------
-model.load_weights('model.h5')
+model.load_weights('weights.h5')
 #opt = SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
 opt = Adam(lr=0.00005)
 model.compile(optimizer=opt, loss='mse', metrics=['accuracy'])
@@ -120,7 +122,7 @@ model.summary()
 
 history = model.fit_generator(
                 # ==== Unmask below line to dump image out to take snapshot of what's being fed into training process.
-                train_datagen.flow(X_train, y_train, batch_size=64,save_to_dir="./", save_prefix="fitgen_", save_format="png"), 
+                train_datagen.flow(X_train, y_train, batch_size=16,save_to_dir="./", save_prefix="fitgen_", save_format="png"), 
                 # ==== Use below line to do normal training
                 #train_datagen.flow(X_train, y_train, batch_size=64), 
                 samples_per_epoch=X_train.shape[0], 
@@ -128,7 +130,6 @@ history = model.fit_generator(
                 validation_data=val_datagen.flow(X_valid, y_valid, batch_size=64), 
                 nb_val_samples=X_valid.shape[0]
                 )
-
 # list all data in history
 print(history.history.keys())
 

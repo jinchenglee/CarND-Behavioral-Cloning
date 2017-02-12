@@ -112,7 +112,7 @@ model.add(Dense(1))
 # -------------------------------------
 # Compile and train the model
 # -------------------------------------
-model.load_weights('model.h5')
+model.load_weights('weights.h5')
 #opt = SGD(lr=0.000001, decay=1e-6, momentum=0.9, nesterov=True)
 opt = Adam(lr=0.00007)
 #opt = RMSprop(lr=0.00008)
@@ -152,7 +152,7 @@ print(history.history.keys())
 # -------------------------------------
 # Saving the results
 # -------------------------------------
-model.save_weights('model.h5')
+model.save_weights('weights.h5')
 
 model_json = model.to_json()
 with open("model.json", "w") as json_file:
