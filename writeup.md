@@ -10,17 +10,18 @@
 **Behavrioal Cloning Project**
 
 The goals / steps of this project are the following:
-* Use the simulator to collect data of good driving behavior
-* Build, a convolution neural network in Keras that predicts steering angles from images
-* Train and validate the model with a training and validation set
-* Test that the model successfully drives around track one without leaving the road
-* Summarize the results with a written report
+- Use the simulator to collect data of good driving behavior
+- Build, a convolution neural network in Keras that predicts steering angles from images
+- Train and validate the model with a training and validation set
+- Test that the model successfully drives around track one without leaving the road
+- Summarize the results with a written report
 
 
+![alt text][image10]
+Above animation shows a scene from track2 that how the trained neural network determines a (somewhat) sharp right turn, the color overlay on the image shows where in the image made the model decide this. Numbers show the turning angle. 
 
 
 [//]: # (Image References)
-
 [image1]: ./md_images/model_horizontal.png "Model Visualization"
 [image2]: ./md_images/GAM1_track2.jpg "Gradient Activation Mapping"
 [image3]: ./md_images/nvidia_end2end_net.png "NVidia end-to-end driving net"
@@ -30,6 +31,9 @@ The goals / steps of this project are the following:
 [image7]: ./md_images/aug_image_shadow.png "Image shadow augmentation"
 [image8]: ./md_images/quiver_screenshot.png "Screenshot of quiver page to see convolution layer internals"
 [image9]: ./md_images/grad_cam.png "Grad-CAM diagram"
+[image10]: ./md_images/cam.gif "Gif annimation of Grad-CAM of conv layer4 output"
+[image11]: ./md_images/bad_data.png "Bad training data example"
+[image12]: ./md_images/udacity_data_analysis.png "Udacity training data analysis"
 
 [//]: # (blog or webpages references)
 [link1]: https://jacobgil.github.io/deeplearning/vehicle-steering-angle-visualizations "Blog: Vehicle steering angle visualization"
@@ -136,7 +140,17 @@ Here is a visualization of the architecture.
 
 ####3. Creation of the Training Set & Training Process
 
-Udacity provided training data contains good driving behavior, I started with that using center image only. Here is an example image of center lane driving:
+Training data selection and preparation is a key starting step to pave base for all future work. Otherwise, it is just garbage in garbage out -- waste of time. 
+
+When I casually collected my data, my data looks like this: left turn dominant and speed capped at fastest pace. Such data won't cover all/enough cases for model to learn good behavior in all scenarios in simulator or real world. 
+
+![alt text][image11]
+
+Udacity provided training data contains good driving behavior. 
+
+![alt text][image12]
+
+I started with Udacity's data using center image only. Here is an example image of center lane driving:
 
 ![alt text][image4]
 
@@ -175,17 +189,17 @@ I finally randomly shuffled the data set and put 20% of the data into a validati
 
 I used this training data for training the model. The validation set helped determine if the model was over or under fitting. The ideal number of epochs was 4-5 as evidenced by validation loss no longer goes down. I used an adam optimizer so that manually training the learning rate wasn't necessary.
 
-####4. Interpretation of the model 
+## Interpretation of the model 
 During the process of training, I felt very uneasy as it is almost like a blackbox. Whenever the model failed to proceed at a certain spot, it is very hard to tell what went wrong. Although my model passed both tracks, the process of try and error and meddle around with different combination of configurations is quite frustrating. 
 
-##### 4.1 Quiver engine
+###1. Quiver engine
 Quiver engine (github: [link6]) is a web-based tool based on Java and Python/Keras to grab internal info. about your neural network. 
 
 Below is an example page showing the activation output of my model's first convolution layer. 
 
 ![alt text][image8]
 
-##### 4.2 Gradient (Class) Activation Mapping
+###2. Gradient (Class) Activation Mapping
 The quiver engine is helpful, but not very straight-forward, as there are too many filters at each convolution layer. At the end of my project, I found a very good blog ([link1]) describing the idea of Activation Mapping. The blog itself was referring to papers: [link2] and [link3]. 
 
 The whole idea is to using heatmap to highlight locality areas contributing most to the final decision. It was designed for classification purpose, but with slight change, it can be applied to our steering angle predictions. 
@@ -195,3 +209,5 @@ Cam.py has the implementation. I ran out of time to carefully verifying it, but 
 
 ![alt text][image2]
 Above image shows a scene from track2 that the number 0.281566 indicates a (somewhat) sharp right turn, the color overlay on the image shows where in the image made the model decided this.
+
+![alt text][image10]
