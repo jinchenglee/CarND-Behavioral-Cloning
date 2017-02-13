@@ -20,6 +20,7 @@ import scipy
 K.set_learning_phase(0) # All operations in test mode
 
 EPSILON = 1e-7
+CONV_LAYER = 'convolution2d_4'
 
 def normalize_grayscale(image_data):
     """
@@ -79,7 +80,7 @@ def visualize_class_activation_map(model, img_path, output_path):
         img = img.reshape([1,66,200,3])
         
         pred_angle = K.sum(model.layers[-1].output)
-        final_conv_layer = get_output_layer(model, "convolution2d_5")
+        final_conv_layer = get_output_layer(model, CONV_LAYER)
 
         grads = normalize(K.gradients(pred_angle, final_conv_layer.output)[0])
         gradients_function = K.function([model.layers[0].input], [final_conv_layer.output, grads, pred_angle])
@@ -129,5 +130,6 @@ import os
 import glob
 for img_file in glob.glob("fitgen*.png"):
     print(img_file)
-    visualize_class_activation_map(model, img_file, img_file+'.cam.png')
+    trim_img_file = img_file[0:-4]
+    visualize_class_activation_map(model, img_file, trim_img_file+'_'+CONV_LAYER+'.cam.jpg')
 
