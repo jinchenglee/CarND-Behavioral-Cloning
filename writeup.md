@@ -211,3 +211,7 @@ Cam.py has the implementation. I ran out of time to carefully verifying it, but 
 Above image shows a scene from track2 that the number 0.281566 indicates a (somewhat) sharp right turn, the color overlay on the image shows where in the image made the model decided this.
 
 ![alt text][image10]
+
+## Todo:
+- The model doesn't generalize enough. Need to leverage GAM information to investigate if time allows. 
+- To derive from keras datagenerator as my own class so data augmentation can be done on the fly instead of using HDF5 tables now. 
