@@ -1,9 +1,9 @@
 
 #**Behavioral Cloning** 
 
-##Writeup Template
+##Project Description
 
-###You can use this file as a template for your writeup if you want to submit it as a markdown file, but feel free to use some other method and submit a pdf if you prefer.
+###
 
 ---
 
@@ -27,24 +27,38 @@ The goals / steps of this project are the following:
 [image6]: ./examples/placeholder_small.png "Normal Image"
 [image7]: ./examples/placeholder_small.png "Flipped Image"
 
+[//]: # (blog or webpages references)
+[link1]: https://jacobgil.github.io/deeplearning/vehicle-steering-angle-visualizations "Blog: Vehicle steering angle visualization"
+[link2]: https://arxiv.org/pdf/1512.04150.pdf "Paper: Learning Deep Features for Discriminative Localization"
+[link3]: https://arxiv.org/pdf/1610.02391v1.pdf "Paper: Grad-CAM. Visual Explanations from Deep Networks via Gradient-based Localization"
+
 ## Rubric Points
-###Here I will consider the [rubric points](https://review.udacity.com/#!/rubrics/432/view) individually and describe how I addressed each point in my implementation.  
+
 
 ---
 ###Files Submitted & Code Quality
 
 ####1. Submission includes all required files and can be used to run the simulator in autonomous mode
 
-My project includes the following files:
+My submitted project includes the following files:
 * model.py containing the script to create and train the model
 * drive.py for driving the car in autonomous mode
 * model.h5 containing a trained convolution neural network 
-* writeup_report.md or writeup_report.pdf summarizing the results
+* writeup.md (this document) summarizing the results
+* track1\_recording.mp4, track2\_recording.mp4 recorded the process how the model passed both tracks. 
+
+Other files in the repository:
+* README.md recorded the history of baby steps in training and validation the model.
+* analyze_data.py is used to analyze the distribution of recorded training data, say histogram of steering angle against speed or throttle.
+* cam.py is used to mapping a set of (recorded, but not necessaily) images to (GAM) graidents activation mappings, which is used to help understand what piece of the image the model sees determines its steering decision. 
+* fitgen_test.py is used to dump datagenerator generated images. Used for sanity checking whether the changes are desired. 
+* preprocess.py is used to turn recorded images and angles into HDF5 data files, along with optional data augmentations, say image brightness change, left/right image augmentation, random shadow generation etc. 
+* quiver\_test.py is used to leverage quiver\_engine liberary to show neural network internals of all conv layers.
 
 ####2. Submssion includes functional code
 Using the Udacity provided simulator and my drive.py file, the car can be driven autonomously around the track by executing 
 ```sh
-python drive.py model.h5
+python3 drive.py model.h5
 ```
 
 ####3. Submssion code is usable and readable
