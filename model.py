@@ -136,4 +136,6 @@ history = model.fit_generator(
 model.save_weights('weights.h5')
 model.save('model.h5')
 
+from keras.utils.visualize_util import plot
+plot(model, to_file='model.png', show_shapes=True, show_layer_names=True)
 

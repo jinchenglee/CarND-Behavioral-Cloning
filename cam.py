@@ -19,6 +19,8 @@ import scipy
 
 K.set_learning_phase(0) # All operations in test mode
 
+EPSILON = 1e-7
+
 def normalize_grayscale(image_data):
     """
     Normalize the image data with Min-Max scaling to a range of [0.1, 0.9]
@@ -57,6 +59,7 @@ def grad_cam_loss(x, angle):
     elif angle < -5.0 * scipy.pi / 180.0:
         return -x
     else:
+        x = x + EPSILON
         return (1.0/x) * np.sign(angle)
 
 
@@ -85,20 +88,26 @@ def visualize_class_activation_map(model, img_path, output_path):
         conv_outputs, grads_val = conv_outputs[0,:], grads_val[0,:,:,:]
 
         print("predicted angle = ", angle)
+        print("grads_val.shape = ", grads_val.shape)
 
-        class_weights = np.mean(grads_val, axis=(0,1))
+        #class_weights = np.mean(grads_val, axis=(0,1))
         # Evaluate the angle to determine the weights
-        class_weights = grad_cam_loss(class_weights, angle)
+        class_weights = grad_cam_loss(grads_val, angle)
         print("class_weights.shape=",class_weights.shape)
 
-        conv_outputs = conv_outputs[0, :, :]
         print("conv_outputs.shape=",conv_outputs.shape)
 
         #Create the class activation map.
-        cam = np.zeros(dtype = np.float32, shape = (1,conv_outputs.shape[0]))
-        for i, w in enumerate(class_weights):
-                #print("i=",i, "w=",w)
-                cam += w * conv_outputs[:,i]
+        cam = np.zeros(dtype = np.float32, shape = conv_outputs.shape)
+        print("cam.shape = ", cam.shape)
+        # Element-wise muliplication
+        cam = class_weights*conv_outputs
+        print("cam.shape = ", cam.shape)
+        cam = np.mean(cam, axis = (2))
+        print("cam.shape = ", cam.shape)
+        #for i, w in enumerate(class_weights):
+        #        #print("i=",i, "w=",w)
+        #        cam += w * conv_outputs[:,i]
 
         cam /= np.max(cam)
         cam = cv2.resize(cam, (height, width))
