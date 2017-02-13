@@ -39,33 +39,37 @@ f = tables.open_file(H5_FILE, 'r')
 
 X_train = np.array(f.root.img)
 y_train = np.array(f.root.steer)
+# Sanity checks
 print(X_train.shape, y_train.shape)
 print("Train data[23] mean = ", np.mean(X_train[23]))
 
+# Split train/test 
 X_train, X_valid, y_train, y_valid = train_test_split(
                 X_train, y_train, test_size=0.2, random_state=88
                 )
-#X_train, y_train = shuffle(X_train, y_train)
+# Sanity checks
 print(X_train.shape, y_train.shape, X_valid.shape, y_valid.shape)
 
-train_datagen = ImageDataGenerator(
-            )
+# Fancier training data generator
 #train_datagen = ImageDataGenerator(
-#            rotation_range=5,
 #            height_shift_range=0.1,
 #            shear_range= 0.1,
 #            zoom_range = 0.1,
 #            fill_mode = 'nearest'
 #          )
+# Plain training data generator
+train_datagen = ImageDataGenerator(
+            )
 train_datagen.fit(X_train)
 
+# Validation data generator
 val_datagen = ImageDataGenerator(
             )
 val_datagen.fit(X_valid)
 
 
 # -------------------------------------
-# Cover of NVidia end-to-end network
+# Cover of NVidia end-to-end network (widen conv layers)
 # -------------------------------------
 model = Sequential()
 # layer 1, conv
@@ -113,10 +117,13 @@ model.add(Dense(1))
 # Compile and train the model
 # -------------------------------------
 model.load_weights('weights.h5')
+
 #opt = SGD(lr=0.000001, decay=1e-6, momentum=0.9, nesterov=True)
-opt = Adam(lr=0.00007)
 #opt = RMSprop(lr=0.00008)
+opt = Adam(lr=0.00007)
+
 model.compile(optimizer=opt, loss='mse', metrics=['accuracy'])
+
 model.summary()
 
 history = model.fit_generator(

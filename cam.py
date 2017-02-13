@@ -1,3 +1,4 @@
+
 import tensorflow as tf
 tf.python.control_flow_ops = tf
 
@@ -7,6 +8,7 @@ from keras.layers.core import Dense, Activation, Flatten, Dropout
 from keras.layers.convolutional import Convolution2D
 from keras.layers.pooling import MaxPooling2D
 from keras.preprocessing.image import *
+from keras import __version__ as keras_version
 
 from sklearn.utils import shuffle
 from sklearn.model_selection import train_test_split
@@ -16,6 +18,8 @@ import tables
 import sys
 import cv2
 import scipy
+import argparse
+import h5py
 
 K.set_learning_phase(0) # All operations in test mode
 
@@ -49,7 +53,6 @@ def normalize_color(image_data):
     #print(np.min(img_normed_color))
     return img_normed_color
 
-
 def normalize(x):
     # utility function to normalize a tensor by its L2 norm
     return x / (K.sqrt(K.mean(K.square(x))) + 1e-5)
@@ -71,65 +74,108 @@ def get_output_layer(model, layer_name):
     return layer
 
 def visualize_class_activation_map(model, img_path, output_path):
-        original_img = cv2.imread(img_path, 1)
-        width, height, _ = original_img.shape
+    original_img = cv2.imread(img_path, 1)
+    width, height, _ = original_img.shape
 
-        #Reshape to the network input shape (3, w, h).
-        #img = np.array([np.transpose(np.float32(original_img), (2, 0, 1))])
-        img = normalize_color(original_img[None,:,:,:])
-        img = img.reshape([1,66,200,3])
-        
-        pred_angle = K.sum(model.layers[-1].output)
-        final_conv_layer = get_output_layer(model, CONV_LAYER)
+    # !!!IMPORTANT!!!
+    # Recorded image using OpenCV (BGR), convert to RGB before feeding into network.
+    # The replayed image has predicted angle a little bit different from recorded value, this is
+    # probably because img compression/de-compression in recording and replay.
+    img_rgb = cv2.cvtColor(original_img, cv2.COLOR_BGR2RGB)
 
-        grads = normalize(K.gradients(pred_angle, final_conv_layer.output)[0])
-        gradients_function = K.function([model.layers[0].input], [final_conv_layer.output, grads, pred_angle])
+    img = normalize_color(img_rgb[None,:,:,:])
+    img = normalize_color(original_img[None,:,:,:])
+    img = img.reshape([1,66,200,3])
+    
+    pred_angle = K.sum(model.layers[-1].output)
+    final_conv_layer = get_output_layer(model, CONV_LAYER)
 
-        conv_outputs, grads_val, angle = gradients_function([img])
-        conv_outputs, grads_val = conv_outputs[0,:], grads_val[0,:,:,:]
+    grads = normalize(K.gradients(pred_angle, final_conv_layer.output)[0])
+    gradients_function = K.function([model.layers[0].input], [final_conv_layer.output, grads, pred_angle])
 
-        print("predicted angle = ", angle)
-        print("grads_val.shape = ", grads_val.shape)
+    conv_outputs, grads_val, angle = gradients_function([img])
+    conv_outputs, grads_val = conv_outputs[0,:], grads_val[0,:,:,:]
 
-        #class_weights = np.mean(grads_val, axis=(0,1))
-        # Evaluate the angle to determine the weights
-        class_weights = grad_cam_loss(grads_val, angle)
-        print("class_weights.shape=",class_weights.shape)
+    #print("predicted angle = ", angle)
+    #print("grads_val.shape = ", grads_val.shape)
 
-        print("conv_outputs.shape=",conv_outputs.shape)
+    #class_weights = np.mean(grads_val, axis=(0,1))
+    # Evaluate the angle to determine the weights
+    class_weights = grad_cam_loss(grads_val, angle)
+    #print("class_weights.shape=",class_weights.shape)
 
-        #Create the class activation map.
-        cam = np.zeros(dtype = np.float32, shape = conv_outputs.shape)
-        print("cam.shape = ", cam.shape)
-        # Element-wise muliplication
-        cam = class_weights*conv_outputs
-        print("cam.shape = ", cam.shape)
-        cam = np.mean(cam, axis = (2))
-        print("cam.shape = ", cam.shape)
-        #for i, w in enumerate(class_weights):
-        #        #print("i=",i, "w=",w)
-        #        cam += w * conv_outputs[:,i]
+    #print("conv_outputs.shape=",conv_outputs.shape)
 
-        cam /= np.max(cam)
-        cam = cv2.resize(cam, (height, width))
-        heatmap = cv2.applyColorMap(np.uint8(255*cam), cv2.COLORMAP_JET)
-        heatmap[np.where(cam < 0.2)] = 0
-        img = heatmap*0.5 + original_img
-        #angle_string = "{:.8f}".format(angle)
-        cv2.putText(img,str(angle),(50,50), cv2.FONT_HERSHEY_PLAIN, 1, (255,255,255), 1)
-        cv2.imwrite(output_path, img)
+    #Create the class activation map.
+    cam = np.zeros(dtype = np.float32, shape = conv_outputs.shape)
+    #print("cam.shape = ", cam.shape)
+    # Element-wise muliplication
+    cam = class_weights*conv_outputs
+    #print("cam.shape = ", cam.shape)
+    cam = np.mean(cam, axis = (2))
+    #print("cam.shape = ", cam.shape)
 
+    cam /= np.max(cam)
+    cam = cv2.resize(cam, (height, width))
+    heatmap = cv2.applyColorMap(np.uint8(255*cam), cv2.COLORMAP_JET)
+    heatmap[np.where(cam < 0.2)] = 0
+    img = heatmap*0.5 + original_img
+    cv2.putText(img,str(angle),(50,50), cv2.FONT_HERSHEY_PLAIN, 1, (255,255,255), 1)
+    cv2.imwrite(output_path, img)
 
 # -------------------------------------
 # Restore cover of NVidia end-to-end network
 # -------------------------------------
-model=load_model('model.h5')
-model.summary()
 
 import os
 import glob
-for img_file in glob.glob("fitgen*.png"):
-    print(img_file)
-    trim_img_file = img_file[0:-4]
-    visualize_class_activation_map(model, img_file, trim_img_file+'_'+CONV_LAYER+'.cam.jpg')
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Gradients Activation Mapping processing.')
+    parser.add_argument(
+        'model',
+        type=str,
+        help='Path to model h5 file. Model should be on the same path.'
+    )
+    parser.add_argument(
+        'image_folder',
+        type=str,
+        nargs='?',
+        default='',
+        help='Path to image folder. This is where the images from the run will be saved.'
+    )
+    args = parser.parse_args()
+
+    # check that model Keras version is same as local Keras version
+    f = h5py.File(args.model, mode='r')
+    model_version = f.attrs.get('keras_version')
+    keras_version = str(keras_version).encode('utf8')
+
+    if model_version != keras_version:
+        print('You are using Keras version ', keras_version,
+            ', but the model was built using ', model_version)
+        
+    model = load_model(args.model)
+    model.summary()
+
+    if args.image_folder != '':
+        print("Creating image folder at {}".format(args.image_folder))
+        if not os.path.exists(args.image_folder):
+            print("Image folder doesn't exist!")
+        else:
+            in_folder = args.image_folder
+            out_folder = in_folder + '_cam'
+            print("Creating image folder at {}".format(out_folder))
+            if os.path.exists(out_folder):
+                shutil.rmtree(out_folder)
+            os.makedirs(out_folder)
+
+            for img_file in glob.glob(in_folder+"/*.png"):
+                print(img_file)
+                in_folder_str_len = len(in_folder)
+                trim_img_file = img_file[in_folder_str_len:-4]
+                visualize_class_activation_map(model, img_file, out_folder+'/'+trim_img_file+'_'+CONV_LAYER+'.cam.jpg')
+    else:
+        print("Where are the images stored? Please provide image folder.")
+
 
