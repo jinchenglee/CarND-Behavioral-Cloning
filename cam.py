@@ -20,6 +20,7 @@ import cv2
 import scipy
 import argparse
 import h5py
+import shutil
 
 K.set_learning_phase(0) # All operations in test mode
 
@@ -84,7 +85,6 @@ def visualize_class_activation_map(model, img_path, output_path):
     img_rgb = cv2.cvtColor(original_img, cv2.COLOR_BGR2RGB)
 
     img = normalize_color(img_rgb[None,:,:,:])
-    img = normalize_color(original_img[None,:,:,:])
     img = img.reshape([1,66,200,3])
     
     pred_angle = K.sum(model.layers[-1].output)
@@ -95,6 +95,11 @@ def visualize_class_activation_map(model, img_path, output_path):
 
     conv_outputs, grads_val, angle = gradients_function([img])
     conv_outputs, grads_val = conv_outputs[0,:], grads_val[0,:,:,:]
+
+    # Sanity check angle vs. directly prediction from model steering_angle. They should match.
+    #steering_angle = float(model.predict(img, batch_size=1))
+    #print("pred_angle = ", angle)
+    #print("steering_angle = ", steering_angle)
 
     #print("predicted angle = ", angle)
     #print("grads_val.shape = ", grads_val.shape)
