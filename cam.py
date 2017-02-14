@@ -74,7 +74,7 @@ def get_output_layer(model, layer_name):
     layer = layer_dict[layer_name]
     return layer
 
-def visualize_class_activation_map(model, img_path, output_path):
+def visualize_class_activation_map(gradients_function, img_path, output_path):
     original_img = cv2.imread(img_path, 1)
     width, height, _ = original_img.shape
 
@@ -86,12 +86,6 @@ def visualize_class_activation_map(model, img_path, output_path):
 
     img = normalize_color(img_rgb[None,:,:,:])
     img = img.reshape([1,66,200,3])
-    
-    pred_angle = K.sum(model.layers[-1].output)
-    final_conv_layer = get_output_layer(model, CONV_LAYER)
-
-    grads = normalize(K.gradients(pred_angle, final_conv_layer.output)[0])
-    gradients_function = K.function([model.layers[0].input], [final_conv_layer.output, grads, pred_angle])
 
     conv_outputs, grads_val, angle = gradients_function([img])
     conv_outputs, grads_val = conv_outputs[0,:], grads_val[0,:,:,:]
@@ -162,6 +156,13 @@ if __name__ == '__main__':
         
     model = load_model(args.model)
     model.summary()
+    
+    pred_angle = K.sum(model.layers[-1].output)
+    final_conv_layer = get_output_layer(model, CONV_LAYER)
+
+    grads = normalize(K.gradients(pred_angle, final_conv_layer.output)[0])
+    gradients_function = K.function([model.layers[0].input], [final_conv_layer.output, grads, pred_angle])
+
 
     if args.image_folder != '':
         print("Creating image folder at {}".format(args.image_folder))
@@ -179,7 +180,7 @@ if __name__ == '__main__':
                 print(img_file)
                 in_folder_str_len = len(in_folder)
                 trim_img_file = img_file[in_folder_str_len:-4]
-                visualize_class_activation_map(model, img_file, out_folder+'/'+trim_img_file+'_'+CONV_LAYER+'.cam.jpg')
+                visualize_class_activation_map(gradients_function, img_file, out_folder+'/'+trim_img_file+'_'+CONV_LAYER+'.cam.jpg')
     else:
         print("Where are the images stored? Please provide image folder.")
 
