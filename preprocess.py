@@ -124,8 +124,7 @@ def add_random_shadow(image):
 # Command line argument processing
 # -------------------------------------
 if len(sys.argv) < 2:
-    print("Missing training data file.")
-    print("python3 model.py <data.h5> [flip]")
+    print("Usage: python3 preprocess.py <data_dir> [flip]")
 
 DATA_DIR = str(sys.argv[1])
 
@@ -272,7 +271,7 @@ with open(DATA_DIR+'/driving_log.csv', newline='') as f:
 
 # sanity check
 # Opencv: rgb back to bgr
-img_resize = X_train[23]
+img_resize = X_train[8]
 img_resize = img_resize[...,[2,1,0]]
 cv2.imwrite("preprocessing_sanity_chk.png", img_resize)
 
