@@ -1,13 +1,7 @@
 
-# **Behavioral Cloning** 
-
-## Project Description
-
-###
+# **Behavioral Cloning Project** 
 
 ---
-
-**Behavrioal Cloning Project**
 
 The goals / steps of this project are the following:
 - Use the simulator to collect data of good driving behavior
@@ -18,6 +12,7 @@ The goals / steps of this project are the following:
 
 
 ![alt text][image10]
+
 Above animation shows a scene from track2 that how the trained neural network determines a (somewhat) sharp right turn, the color overlay on the image shows where in the image made the model decide this. Numbers show the turning angle. 
 
 
@@ -42,39 +37,43 @@ Above animation shows a scene from track2 that how the trained neural network de
 [link4]: http://images.nvidia.com/content/tegra/automotive/images/2016/solutions/pdf/end-to-end-dl-using-px.pdf "NVidia end-to-end neural network paper"
 [link5]: https://chatbotslife.com/using-augmentation-to-mimic-human-driving-496b569760a9#.2d9nkoc46 "Vivek's blog on image augmentation"
 [link6]: https://github.com/keplr-io/quiver "Quiver engine page"
+[Udacity self driving car simulator]: https://github.com/udacity/self-driving-car-sim
 
-## Rubric Points
+### Quick explanation and HOWTOs
 
-
----
-### Files Submitted & Code Quality
-
-#### 1. Submission includes all required files and can be used to run the simulator in autonomous mode
+#### 1. Files explanation.
 
 My submitted project includes the following files:
-- model.py containing the script to create and train the model
+- model.py contains the script to create and train the model
 - drive.py for driving the car in autonomous mode
 - model.h5 containing a trained convolution neural network 
-- writeup.md (this document) summarizing the results
 - track1\_recording.mp4, track2\_recording.mp4 recorded the process how the model passed both tracks. 
 
 Other files in the repository:
--  README.md recorded the history of baby steps in training and validation the model.
+-  README.md, this file (earlier versions recorded the history of baby steps in training and validation the model).
 - analyze_data.py is used to analyze the distribution of recorded training data, say histogram of steering angle against speed or throttle.
 - cam.py is used to mapping a set of (recorded, but not necessaily) images to (GAM) graidents activation mappings, which is used to help understand what piece of the image the model sees determines its steering decision. 
 - fitgen_test.py is used to dump datagenerator generated images. Used for sanity checking whether the changes are desired. 
 - preprocess.py is used to turn recorded images and angles into HDF5 data files, along with optional data augmentations, say image brightness change, left/right image augmentation, random shadow generation etc. 
-- quiver\_test.py is used to leverage quiver\_engine liberary to show neural network internals of all conv layers.
+- quiver\_test.py is used to leverage quiver\_engine library to show neural network internals of all conv layers.
 
-#### 2. Submssion includes functional code
+#### 2. How to run
 Using the Udacity provided simulator (earlier one, track 2 was curvy dark road in black mountains) and my drive.py file, the car can be driven autonomously around the track by executing 
 ```sh
 python3 drive.py model.h5
 ```
 
-#### 3. Submssion code is usable and readable
+#### 3. How to train
 
 The model.py file contains the code for training and saving the convolution neural network. The file shows the pipeline I used for training and validating the model, and it contains comments to explain how the code works.
+```sh
+python3 model.py <data.h5> <epoch_cnt>
+```
+
+The data.h5 file is prepared by preprocess.py in HDF5 format using data augmentation techniques described below. Raw data is recorded in a directory using [Udacity self driving car simulator]. To generate data.h5 file:
+```sh
+python3 preprocess.py <data_dir> [flip]
+```
 
 ### Model Architecture and Training Strategy
 
@@ -92,7 +91,9 @@ The model includes RELU layers to introduce nonlinearity at the output of every 
 
 The model contains dropout layers in order to reduce overfitting (model.py code 81, 85, 89, 93, 99, 103). 
 
-The model was trained and validated on different data sets to ensure that the model was not overfitting (model.py code line 47). The model was tested by running it through the simulator and ensuring that the vehicle could stay on both the tracks.
+The model was trained and validated on different data sets to ensure that the model was not overfitting (model.py code line 47)for current datasets collected in two simulator tracks. The model was tested by running it through the simulator and ensuring that the vehicle could stay on both the tracks.
+
+ (Update: 2017 May. The trained NN turned out to badly overfitting when trying on yet another new track in the newer version of car simulator. This is understood as the training dataset is so limited, also the back-annotated heatmap shows the trained NN doens't look at the desired features, such as lanemarks.)
 
 #### 3. Model parameter tuning
 
@@ -120,11 +121,11 @@ Image cropping: I started with dataset provided by Udacity only. Also, the nvidi
             img_crop = img[56:160,:,:]
             img_resize = cv2.resize(img_crop, (200,66))
 ```
-Started simple: The training process started with only three images, one with right steering angle, one with left steering angle and the last one with almost 0 angle. I verified my initial Keras model coding can overfit with these three images as input. This is a very practice of sanity check that the model is crafted right and has learning capability.
+Started simple: The training process started with only three images, one with right steering angle, one with left steering angle and the last one with almost 0 angle. I verified my initial Keras model coding can overfit with these three images as input. This serves as a very good practice of sanity check that the model is crafted right and has learning capability.
 
 Train/Validate split: In order to gauge how well the model was working, I split my image and steering angle data into a training and validation set. I found that my first model had a low mean squared error on the training set but a high mean squared error on the validation set. This implied that the model was overfitting. 
 
-Overfitting: To combat the overfitting, I modified the model by inserting dropouts to layers so that each layer can learn "redundant" features that even some are dropped in droput layer, it can still predict the right angle. It did work. 
+Overfitting: To combat the overfitting, I modified the model by inserting dropouts to layers so that each layer can learn "redundant" features that even some are dropped in dropout layer, it can still predict the right angle. It did work. 
 
 Test: The final step was to run the simulator to see how well the car was driving around track one. There were a few spots where the vehicle fell off the track (say, the first left turn before black bridge, the left turn after black bridge, and then the right turn after that)... to improve the driving behavior in these cases, I purposely recorded recovery behavior (from curb side to center of the road) along the tracks. Then the car can finish track 1 completely. 
 
