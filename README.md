@@ -1,7 +1,7 @@
 
-#**Behavioral Cloning** 
+# **Behavioral Cloning** 
 
-##Project Description
+## Project Description
 
 ###
 
@@ -47,9 +47,9 @@ Above animation shows a scene from track2 that how the trained neural network de
 
 
 ---
-###Files Submitted & Code Quality
+### Files Submitted & Code Quality
 
-####1. Submission includes all required files and can be used to run the simulator in autonomous mode
+#### 1. Submission includes all required files and can be used to run the simulator in autonomous mode
 
 My submitted project includes the following files:
 - model.py containing the script to create and train the model
@@ -66,19 +66,19 @@ Other files in the repository:
 - preprocess.py is used to turn recorded images and angles into HDF5 data files, along with optional data augmentations, say image brightness change, left/right image augmentation, random shadow generation etc. 
 - quiver\_test.py is used to leverage quiver\_engine liberary to show neural network internals of all conv layers.
 
-####2. Submssion includes functional code
+#### 2. Submssion includes functional code
 Using the Udacity provided simulator (earlier one, track 2 was curvy dark road in black mountains) and my drive.py file, the car can be driven autonomously around the track by executing 
 ```sh
 python3 drive.py model.h5
 ```
 
-####3. Submssion code is usable and readable
+#### 3. Submssion code is usable and readable
 
 The model.py file contains the code for training and saving the convolution neural network. The file shows the pipeline I used for training and validating the model, and it contains comments to explain how the code works.
 
-###Model Architecture and Training Strategy
+### Model Architecture and Training Strategy
 
-####1. An appropriate model arcthiecture has been employed
+#### 1. An appropriate model arcthiecture has been employed
 
 My model started with NVidia end-to-end neural network described in this paper ([link4]) and it was slightly modified. 
 
@@ -88,27 +88,27 @@ It consists of a convolution neural network with 5 layers of convolution of 3x3 
 
 The model includes RELU layers to introduce nonlinearity at the output of every layer, and the data is normalized in preprocess.py (line 280) by a manually written normalization function normalize_color().
 
-####2. Attempts to reduce overfitting in the model
+#### 2. Attempts to reduce overfitting in the model
 
 The model contains dropout layers in order to reduce overfitting (model.py code 81, 85, 89, 93, 99, 103). 
 
 The model was trained and validated on different data sets to ensure that the model was not overfitting (model.py code line 47). The model was tested by running it through the simulator and ensuring that the vehicle could stay on both the tracks.
 
-####3. Model parameter tuning
+#### 3. Model parameter tuning
 
 The model used an adam optimizer, so the learning rate was not tuned manually (model.py line 123). 
 
 Other optimizers were tried during the training process, including SGD and RMSprop, but it ended up with adam. 
 
-####4. Appropriate training data
+#### 4. Appropriate training data
 
 Training data was chosen to keep the vehicle driving on the road. I used a combination of center lane driving, recovering from the left and right sides of the road ... 
 
 For details about how I created the training data, see the next section. 
 
-###Model Architecture and Training Strategy
+### Model Architecture and Training Strategy
 
-####1. Solution Design Approach
+#### 1. Solution Design Approach
 
 The overall strategy for deriving a model architecture was to try, error, analyze failures and improve. 
 
@@ -130,7 +130,7 @@ Test: The final step was to run the simulator to see how well the car was drivin
 
 At the end of the process, the vehicle is able to drive autonomously around the track without leaving the road.
 
-####2. Final Model Architecture
+#### 2. Final Model Architecture
 
 The final model architecture (model.py lines 18-24) consisted of a convolution neural network with the following layers and layer sizes ...
 
@@ -138,7 +138,7 @@ Here is a visualization of the architecture.
 
 ![alt text][image1]
 
-####3. Creation of the Training Set & Training Process
+#### 3. Creation of the Training Set & Training Process
 
 Training data selection and preparation is a key starting step to pave base for all future work. Otherwise, it is just garbage in garbage out -- waste of time. 
 
@@ -192,14 +192,14 @@ I used this training data for training the model. The validation set helped dete
 ## Interpretation of the model 
 During the process of training, I felt very uneasy as it is almost like a blackbox. Whenever the model failed to proceed at a certain spot, it is very hard to tell what went wrong. Although my model passed both tracks, the process of try and error and meddle around with different combination of configurations is quite frustrating. 
 
-###1. Quiver engine
+### 1. Quiver engine
 Quiver engine (github: [link6]) is a web-based tool based on Java and Python/Keras to grab internal info. about your neural network. 
 
 Below is an example page showing the activation output of my model's first convolution layer. 
 
 ![alt text][image8]
 
-###2. Gradient (Class) Activation Mapping
+### 2. Gradient (Class) Activation Mapping
 The quiver engine is helpful, but not very straight-forward, as there are too many filters at each convolution layer. At the end of my project, I found a very good blog ([link1]) describing the idea of Activation Mapping. The blog itself was referring to papers: [link2] and [link3]. 
 
 The whole idea is to using heatmap to highlight locality areas contributing most to the final decision. It was designed for classification purpose, but with slight change, it can be applied to our steering angle predictions. 
