@@ -11,9 +11,9 @@ The goals / steps of this project are the following:
 - Summarize the results with a written report
 
 
-![alt text][image10]
+![alt text][image10]                ![alt text][image13] 
 
-Above animation shows a scene from track2 that how the trained neural network determines a (somewhat) sharp right turn, the color overlay on the image shows where in the image made the model decide this. Numbers show the turning angle. 
+Above animation shows a scene from track2 that how the trained neural network determines (somewhat) sharp turns from conv layer4 (left) and conv layer1 (right), the color overlay on the image shows where in the image made the model decide this. Numbers show the turning angle. 
 
 
 [//]: # (Image References)
@@ -29,6 +29,13 @@ Above animation shows a scene from track2 that how the trained neural network de
 [image10]: ./md_images/cam.gif "Gif annimation of Grad-CAM of conv layer4 output"
 [image11]: ./md_images/bad_data.png "Bad training data example"
 [image12]: ./md_images/udacity_data_analysis.png "Udacity training data analysis"
+[image13]: ./md_images/cam_layer1_track2_updated.gif "GAM annotation from convolution layer1"
+[gam_layer1]: ./md_images/t2_layer1.cam.jpg "GAM from conv layer1"
+[gam_layer2]: ./md_images/t2_layer2.cam.jpg "GAM from conv layer2"
+[gam_layer3]: ./md_images/t2_layer3.cam.jpg "GAM from conv layer3"
+[gam_layer4]: ./md_images/t2_layer4.cam.jpg "GAM from conv layer4"
+[gam_layer5]: ./md_images/t2_layer5.cam.jpg "GAM from conv layer5"
+[gam_layers]: ./md_images/t2_layers.cam.jpg "GAM from conv all layers"
 
 [//]: # (blog or webpages references)
 [link1]: https://jacobgil.github.io/deeplearning/vehicle-steering-angle-visualizations "Blog: Vehicle steering angle visualization"
@@ -38,6 +45,7 @@ Above animation shows a scene from track2 that how the trained neural network de
 [link5]: https://chatbotslife.com/using-augmentation-to-mimic-human-driving-496b569760a9#.2d9nkoc46 "Vivek's blog on image augmentation"
 [link6]: https://github.com/keplr-io/quiver "Quiver engine page"
 [Udacity self driving car simulator]: https://github.com/udacity/self-driving-car-sim
+[Explaining How a Deep Neural Network Trained with End-to-End Learning Steers a Car]: https://arxiv.org/pdf/1704.07911.pdf "Explaining How a Deep Neural Network Trained with End-to-End Learning Steers a Car"
 
 ### Quick explanation and HOWTOs
 
@@ -52,7 +60,7 @@ My submitted project includes the following files:
 Other files in the repository:
 -  README.md, this file (earlier versions recorded the history of baby steps in training and validation the model).
 - analyze_data.py is used to analyze the distribution of recorded training data, say histogram of steering angle against speed or throttle.
-- cam.py is used to mapping a set of (recorded, but not necessaily) images to (GAM) graidents activation mappings, which is used to help understand what piece of the image the model sees determines its steering decision. 
+- cam.py is used to mapping a set of (recorded, but not necessaily) images to (GAM) graidents activation mappings, which is used to help understand what piece of the image the model sees determines its steering decision. [Updated 2017-05: updated cam_2.py generated all layers GAM images. Details below]
 - fitgen_test.py is used to dump datagenerator generated images. Used for sanity checking whether the changes are desired. 
 - preprocess.py is used to turn recorded images and angles into HDF5 data files, along with optional data augmentations, say image brightness change, left/right image augmentation, random shadow generation etc. 
 - quiver\_test.py is used to leverage quiver\_engine library to show neural network internals of all conv layers.
@@ -60,19 +68,45 @@ Other files in the repository:
 #### 2. How to run
 Using the Udacity provided simulator (earlier one, track 2 was curvy dark road in black mountains) and my drive.py file, the car can be driven autonomously around the track by executing 
 ```sh
-python3 drive.py model.h5
+python3 drive.py model.h5 [recording_dir]
 ```
+
+If [recording_dir] is specified, frame images will be automatically saved for later analysis.
 
 #### 3. How to train
 
 The model.py file contains the code for training and saving the convolution neural network. The file shows the pipeline I used for training and validating the model, and it contains comments to explain how the code works.
+
 ```sh
 python3 model.py <data.h5> <epoch_cnt>
 ```
-
 The data.h5 file is prepared by preprocess.py in HDF5 format using data augmentation techniques described below. Raw data is recorded in a directory using [Udacity self driving car simulator]. To generate data.h5 file:
 ```sh
 python3 preprocess.py <data_dir> [flip]
+```
+
+#### 4. How to generate CAM (class/gradient activation map) image and video?
+
+Recorded images in img_dir, kick off:
+
+```sh
+python3 cam_2.py model.h5 <img_dir>
+```
+
+A <img_dir>_cam dir will be generated. 6 sets of cam-annotated images will be generated: *.layer[1-5].cam.jpg, or *.layers.cam.jpg. First 5 each specify cam annotation up to that specific conv layer 1-5. Last one is a combined annotation.
+
+The steps are following NVidia new paper [Explaining How a Deep Neural Network Trained with End-to-End Learning Steers a Car]. 
+
+**TODO**: The de-convolution way of upsampling is not implemented, but simply using a cv2.resize() which should have caused a lot of issues -- a lot of final cam image of all layers has nothing left in cam. But it does show the intention and works as the gif shows above.
+
+To convert images to video:
+```sh
+python3 video.py <img_dir>
+```
+
+To convert images to gif (Ubuntu):
+```sh
+convert -delay 20 -loop 0 *.jpg cam_track2_updated.gif
 ```
 
 ### Model Architecture and Training Strategy
@@ -211,7 +245,9 @@ Cam.py has the implementation. I ran out of time to carefully verifying it, but 
 ![alt text][image2]
 Above image shows a scene from track2 that the number 0.281566 indicates a (somewhat) sharp right turn, the color overlay on the image shows where in the image made the model decided this.
 
-![alt text][image10]
+
+![alt text][gam_layer1] ![alt text][gam_layer2] ![alt text][gam_layer3] ![alt text][gam_layer4] ![alt text][gam_layer5] ![alt text][gam_layers] 
+Above images shows consecutively convolution layers 1-5 GAM annoation. Last image shows the combined result of all layers. 
 
 ## Todo:
 - The model doesn't generalize enough. Need to leverage GAM information to investigate if time allows. 
