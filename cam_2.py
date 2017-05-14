@@ -84,7 +84,7 @@ def grad_cam_loss(x, angle):
 
 
 def visualize_class_activation_map(gradients_function, img_path, output_path):
-    print('DEBUG_5: ', img_path)
+    #print('DEBUG_5: ', img_path)
     original_img = cv2.imread(img_path, 1)
     width, height, _ = original_img.shape
 
@@ -103,8 +103,8 @@ def visualize_class_activation_map(gradients_function, img_path, output_path):
     for gf in gradients_function:
         layer+=1
         interested_layer_outputs, grads_val, angle = gf([img])
-        print('DEBUG_6: ', interested_layer_outputs.shape)
-        print('DEBUG_7: ', grads_val.shape)
+        #print('DEBUG_6: ', interested_layer_outputs.shape)
+        #print('DEBUG_7: ', grads_val.shape)
         
         # Sanity check angle vs. directly prediction from model steering_angle. They should match.
         #steering_angle = float(model.predict(img, batch_size=1))
@@ -114,16 +114,16 @@ def visualize_class_activation_map(gradients_function, img_path, output_path):
         #class_weights = np.mean(grads_val, axis=(0,1))
         # Evaluate the angle to determine the weights
         class_weights = grad_cam_loss(grads_val, angle)
-        print('DEBUG_8 class_weights.shape =',class_weights.shape)
+        #print('DEBUG_8 class_weights.shape =',class_weights.shape)
         
         #Create the class activation map.
         cam = np.zeros(dtype = np.float32, shape = interested_layer_outputs.shape)
         # Element-wise muliplication
         cam = class_weights*interested_layer_outputs
-        print("DEBUG_9 cam.shape = ", cam.shape)
+        #print("DEBUG_9 cam.shape = ", cam.shape)
         # Average among the number of filters in this layer
         cam = np.mean(cam, axis = (2))
-        print("DEBUG_10 cam.shape = ", cam.shape)
+        #print("DEBUG_10 cam.shape = ", cam.shape)
         
         #Bug? Should use abs(cam) before scaling to colormap
         #cam /= np.max(cam)
@@ -151,10 +151,10 @@ def visualize_class_activation_map(gradients_function, img_path, output_path):
     for cam in reversed(cam_list): # cam_list order matters. Appended from layer 1 to 5
         # Scale up to current layer's size
         scaled_cam = cv2.resize(scaled_cam, (cam.shape[1], cam.shape[0]))# Interesting, np created array row/col is opposite order of cv2
-        print('DEBUG 11 ', scaled_cam.shape)
+        #print('DEBUG 11 ', scaled_cam.shape)
         # Element-wise muliplication
         scaled_cam = np.multiply(scaled_cam, cam)
-        print('DEBUG 12 ', scaled_cam.shape)
+        #print('DEBUG 12 ', scaled_cam.shape)
         # Normalize
         scaled_cam /= np.max(np.abs(scaled_cam))
 
@@ -174,8 +174,8 @@ def prepare_grad_func(model, CONV_LAYERS):
 
     # Get the final output of the model
     pred_angle = K.sum(model.layers[-1].output)
-    print('DEBUG_1: ', model.layers[-1].output)
-    print('DEBUG_2: pred_angle', pred_angle)
+    #print('DEBUG_1: ', model.layers[-1].output)
+    #print('DEBUG_2: pred_angle', pred_angle)
 
     # Build layer dictionary
     layer_dict = dict([(layer.name, layer) for layer in model.layers])
@@ -188,8 +188,8 @@ def prepare_grad_func(model, CONV_LAYERS):
     	# Gradients from output to interested layer, not sure why it is output as a list [blah], 
     	#   thus the [0] at the end
     	grads = normalize(K.gradients(pred_angle, interested_layer.output)[0])
-    	print('DEBUG_3: ', K.gradients(pred_angle, interested_layer.output))
-    	print('DEBUG_4: ', K.gradients(pred_angle, interested_layer.output)[0])
+        #print('DEBUG_3: ', K.gradients(pred_angle, interested_layer.output))
+        #print('DEBUG_4: ', K.gradients(pred_angle, interested_layer.output)[0])
 
     	# Feed input, grab output (pred_angle), interested layer output and gradients from 
     	#   pred_angle back to interested layer. 
