@@ -59,11 +59,20 @@ def normalize(x):
     return x / (K.sqrt(K.mean(K.square(x))) + 1e-5)
 
 def grad_cam_loss(x, angle):
-    if angle > 5.0 * scipy.pi / 180.0:
+    '''
+    Return the gradient value, but when angle is very small, we care about those values
+    contribute to the result of its being small, thus the last "else" of 1/x. 
+
+    TODO: It seems this method cannot deal with negative values well. Say in small angle
+    case that postive and negative values average out each other.
+    '''
+    threshold_degree = 3.0
+    if angle > threshold_degree * scipy.pi / 180.0:
         return x
-    elif angle < -5.0 * scipy.pi / 180.0:
+    elif angle < -threshold_degree * scipy.pi / 180.0:
         return -x
     else:
+        # Avoid div-by-0.
         x = x + EPSILON
         return (1.0/x) * np.sign(angle)
 
@@ -75,6 +84,7 @@ def get_output_layer(model, layer_name):
     return layer
 
 def visualize_class_activation_map(gradients_function, img_path, output_path):
+    print('DEBUG_5: ', img_path)
     original_img = cv2.imread(img_path, 1)
     width, height, _ = original_img.shape
 
@@ -87,34 +97,33 @@ def visualize_class_activation_map(gradients_function, img_path, output_path):
     img = normalize_color(img_rgb[None,:,:,:])
     img = img.reshape([1,66,200,3])
 
-    conv_outputs, grads_val, angle = gradients_function([img])
-    conv_outputs, grads_val = conv_outputs[0,:], grads_val[0,:,:,:]
+    interested_layer_outputs, grads_val, angle = gradients_function([img])
+    print('DEBUG_6: ', interested_layer_outputs.shape)
+    print('DEBUG_7: ', grads_val.shape)
 
     # Sanity check angle vs. directly prediction from model steering_angle. They should match.
     #steering_angle = float(model.predict(img, batch_size=1))
-    #print("pred_angle = ", angle)
-    #print("steering_angle = ", steering_angle)
-
     #print("predicted angle = ", angle)
-    #print("grads_val.shape = ", grads_val.shape)
+    #print("steering_angle = ", steering_angle)
 
     #class_weights = np.mean(grads_val, axis=(0,1))
     # Evaluate the angle to determine the weights
     class_weights = grad_cam_loss(grads_val, angle)
-    #print("class_weights.shape=",class_weights.shape)
-
-    #print("conv_outputs.shape=",conv_outputs.shape)
+    print('DEBUG_8 class_weights.shape =',class_weights.shape)
 
     #Create the class activation map.
-    cam = np.zeros(dtype = np.float32, shape = conv_outputs.shape)
-    #print("cam.shape = ", cam.shape)
+    cam = np.zeros(dtype = np.float32, shape = interested_layer_outputs.shape)
     # Element-wise muliplication
-    cam = class_weights*conv_outputs
-    #print("cam.shape = ", cam.shape)
+    cam = class_weights*interested_layer_outputs
+    print("DEBUG_9 cam.shape = ", cam.shape)
+    # Average among the number of filters in this layer
     cam = np.mean(cam, axis = (2))
-    #print("cam.shape = ", cam.shape)
+    print("DEBUG_10 cam.shape = ", cam.shape)
 
-    cam /= np.max(cam)
+    #Bug? Should use abs(cam) before scaling to colormap
+    #cam /= np.max(cam)
+    cam /= np.max(np.abs(cam))
+
     cam = cv2.resize(cam, (height, width))
     heatmap = cv2.applyColorMap(np.uint8(255*cam), cv2.COLORMAP_JET)
     heatmap[np.where(cam < 0.2)] = 0
@@ -157,15 +166,30 @@ if __name__ == '__main__':
     model = load_model(args.model)
     model.summary()
     
-    pred_angle = K.sum(model.layers[-1].output)
-    final_conv_layer = get_output_layer(model, CONV_LAYER)
+    ###------ Key section of assistance functions definition ------
 
-    grads = normalize(K.gradients(pred_angle, final_conv_layer.output)[0])
-    gradients_function = K.function([model.layers[0].input], [final_conv_layer.output, grads, pred_angle])
+    # Get the final output of the model
+    pred_angle = K.sum(model.layers[-1].output)
+    print('DEBUG_1: ', model.layers[-1].output)
+    print('DEBUG_2: pred_angle', pred_angle)
+
+    # The specific layer of interest to back-annotate the activation
+    interested_layer = get_output_layer(model, CONV_LAYER)
+
+    # Gradients from output to interested layer, not sure why it is output as a list [blah], 
+    #   thus the [0] at the end
+    grads = normalize(K.gradients(pred_angle, interested_layer.output)[0])
+    print('DEBUG_3: ', K.gradients(pred_angle, interested_layer.output))
+    print('DEBUG_4: ', K.gradients(pred_angle, interested_layer.output)[0])
+
+    # Feed input, grab output (pred_angle), interested layer output and gradients from 
+    #   pred_angle back to interested layer. 
+    gradients_function = K.function([model.layers[0].input], [interested_layer.output[0], grads[0], pred_angle])
+    ###------------------------------------------------
 
 
     if args.image_folder != '':
-        print("Creating image folder at {}".format(args.image_folder))
+        print("Work with image folder at {}".format(args.image_folder))
         if not os.path.exists(args.image_folder):
             print("Image folder doesn't exist!")
         else:
