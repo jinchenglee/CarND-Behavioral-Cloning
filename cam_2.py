@@ -21,10 +21,13 @@ import scipy
 import argparse
 import h5py
 import shutil
+import numpy as np
 
 K.set_learning_phase(0) # All operations in test mode
 
 EPSILON = 1e-7
+
+# The order of layers listed in CONV_LAYERS matters in functions below.
 CONV_LAYERS = [	'convolution2d_1', 'convolution2d_2', 
 		'convolution2d_3', 'convolution2d_4', 'convolution2d_5' ]
 
@@ -67,6 +70,8 @@ def grad_cam_loss(x, angle):
     TODO: It seems this method cannot deal with negative values well. Say in small angle
     case that postive and negative values average out each other.
     '''
+    # threshold was setting to a value other than 0 degree
+    #threshold_degree = 3.0
     threshold_degree = 0.0
     if angle > threshold_degree * scipy.pi / 180.0:
         return x
@@ -127,12 +132,39 @@ def visualize_class_activation_map(gradients_function, img_path, output_path):
         cam_list.append(cam)
  
 
-        cumulative_cam = cv2.resize(cam, (height, width))
-        heatmap = cv2.applyColorMap(np.uint8(255*cumulative_cam), cv2.COLORMAP_JET)
-        heatmap[np.where(cumulative_cam < 0.2)] = 0
+        cam = cv2.resize(cam, (height, width))
+        heatmap = cv2.applyColorMap(np.uint8(255*cam), cv2.COLORMAP_JET)
+        heatmap[np.where(cam < 0.2)] = 0
         new_img = heatmap*0.5 + original_img
         cv2.putText(new_img,str(angle),(50,50), cv2.FONT_HERSHEY_PLAIN, 1, (255,255,255), 1)
         cv2.imwrite(output_path+'_layer'+str(layer)+'.cam.jpg', new_img)
+
+
+    # Calculate the cumulative version of cam
+    # Following NVidia new paper: https://arxiv.org/pdf/1704.07911.pdf (Explaining How a Deep
+    #   Neural Network Trained with End-to-End Learning Steers a Car)
+    #
+    # TODO: the de-convolution part is not implemented, but using a cv2.resize() which should have
+    # caused a lot of issues -- a lot of final cam image of all layers has nothing left in cam.
+
+    scaled_cam = np.ones((cam_list[4].shape[0], cam_list[4].shape[1]))  #(width, height)
+    for cam in reversed(cam_list): # cam_list order matters. Appended from layer 1 to 5
+        # Scale up to current layer's size
+        scaled_cam = cv2.resize(scaled_cam, (cam.shape[1], cam.shape[0]))# Interesting, np created array row/col is opposite order of cv2
+        print('DEBUG 11 ', scaled_cam.shape)
+        # Element-wise muliplication
+        scaled_cam = np.multiply(scaled_cam, cam)
+        print('DEBUG 12 ', scaled_cam.shape)
+        # Normalize
+        scaled_cam /= np.max(np.abs(scaled_cam))
+
+    scaled_cam = cv2.resize(scaled_cam, (height, width))
+    heatmap = cv2.applyColorMap(np.uint8(255*scaled_cam), cv2.COLORMAP_JET)
+    heatmap[np.where(scaled_cam < 0.2)] = 0
+    new_img = heatmap*0.5 + original_img
+    cv2.putText(new_img,str(angle),(50,50), cv2.FONT_HERSHEY_PLAIN, 1, (255,255,255), 1)
+    cv2.imwrite(output_path+'_layers'+'.cam.jpg', new_img)
+
 
 def prepare_grad_func(model, CONV_LAYERS):
     '''
